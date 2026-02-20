@@ -18,6 +18,11 @@ This repo is consumed as a **git submodule** by:
 | `derivatives.md` | Derivatives pipelines and target workflow |
 | `stimuli.md` | Stimulus materials (images, audio, movies) and metadata |
 | `compliance-status.md` | BIDS compliance checklists and open questions |
+| `mri-sequences.md` | MRI acquisition parameters for all datatypes |
+| `mri-data.md` | Overview of preprocessed MRI data |
+| `behav-physio.md` | Behavioral, eye-tracking, and physiological data |
+| `access.md` | Data access and availability |
+| `contributors.md` | Project team and affiliations |
 
 ## Contributing
 
