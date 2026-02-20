@@ -151,17 +151,22 @@ Two CSV files provide psycholinguistic properties for each word:
 |--------|-------------|
 | `itmno` | Item number (1-based index) |
 | `word` | The word itself |
-| `imagery` | Imagery rating |
-| `concreteness` | Concreteness rating |
+| `imagery` | Imagery rating (higher = more imageable) |
+| `concreteness` | Concreteness rating (higher = more concrete) |
 | `letters` | Number of letters |
-| `frequency` | Word frequency |
-| `foa` | TBD — awaiting clarification |
-| `soa` | TBD — awaiting clarification |
-| `onr` | TBD — awaiting clarification |
-| `dictcode` | TBD — awaiting clarification |
-| `noun` | Percentage classified as noun |
-| `canadian` | TBD — awaiting clarification |
-| `tmpno` | TBD — present in `twp1000.csv` only |
+| `frequency` | Word frequency (Kucera-Francis norms) |
+| `foa` | First-order approximation to English, based on individual letter frequencies |
+| `soa` | Second-order approximation to English, based on bigram frequencies |
+| `onr` | Orthographic neighbor ratio (Landauer & Streeter, 1973): word frequency relative to combined frequency of orthographic neighbors |
+| `dictcode` | Grammatical class code: 1=noun, 2=verb, 3=adjective, 4=adverb, 5=other |
+| `noun` | Percent noun usage (0 or 100 for unambiguous words; rated for ambiguous words) |
+| `canadian` | Flag for Canadian spelling variant (the final 13 entries in the full TWP are Canadian alternatives with duplicate item numbers) |
+| `tmpno` | Temporary item number — present in `twp1000.csv` only |
+
+The Toronto Word Pool (1,080 words) originated from Thorndike-Lorge (1944) norms
+and has been used in hundreds of memory experiments. See the
+[WordPools R package](https://cran.r-project.org/package=WordPools) for the
+original dataset and documentation.
 
 ## Stimulus Assignment
 
@@ -227,7 +232,5 @@ carry-over movies from the prior session.
 
 ## Open Questions
 
-- Full column definitions for the TWP metadata CSVs (`foa`, `soa`, `onr`,
-  `dictcode`, `canadian`, `tmpno`)
 - NSD image licensing terms for data sharing
 - Movie licensing/provenance details for data sharing
