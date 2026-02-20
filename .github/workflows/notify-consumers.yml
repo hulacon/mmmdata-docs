@@ -1,0 +1,23 @@
+name: Notify consumer repos
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify hulacon/mmmdata
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DOCS_SYNC_TOKEN }}
+          repository: hulacon/mmmdata
+          event-type: shared-docs-updated
+
+      - name: Notify jhutchin/mmmdata-agents
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DOCS_SYNC_TOKEN }}
+          repository: jhutchin/mmmdata-agents
+          event-type: shared-docs-updated
