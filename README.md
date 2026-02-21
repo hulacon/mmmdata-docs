@@ -1,7 +1,7 @@
 # MMMData Shared Documentation
 
 > **These docs are best viewed at [hulacon.github.io/mmmdata](https://hulacon.github.io/mmmdata/).**
-> This repo contains the source markdown files; the rendered, navigable version lives at the link above.
+> This repo contains the source markdown files only; the rendered, navigable version lives at the link above.
 
 Canonical dataset documentation for the Multi-Modal Memory Dataset (MMMData) project.
 
