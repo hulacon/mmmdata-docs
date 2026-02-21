@@ -1,7 +1,8 @@
 ---
-title: Sourcedata
-parent: Dataset Description
-nav_order: 5
+title: Source Data
+parent: Data Organization
+grand_parent: Dataset Description
+nav_order: 2
 ---
 
 # Sourcedata

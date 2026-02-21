@@ -1,7 +1,8 @@
 ---
-title: Behavioral and Physiological Data
-parent: Dataset Description
-nav_order: 11
+title: Behavioral & Physiological Data
+parent: Data Acquisition
+grand_parent: Dataset Description
+nav_order: 2
 ---
 
 # Overview

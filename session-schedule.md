@@ -1,7 +1,8 @@
 ---
 title: Session Schedule
-parent: Dataset Description
-nav_order: 2
+parent: Experimental Design
+grand_parent: Dataset Description
+nav_order: 1
 ---
 
 # Session Schedule

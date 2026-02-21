@@ -1,7 +1,8 @@
 ---
-title: File Organization
-parent: Dataset Description
-nav_order: 4
+title: BIDS Structure
+parent: Data Organization
+grand_parent: Dataset Description
+nav_order: 1
 ---
 
 # File Organization

@@ -1,10 +1,11 @@
 ---
-title: Derivatives
-parent: Dataset Description
-nav_order: 6
+title: Derivatives & Preprocessing
+parent: Data Organization
+grand_parent: Dataset Description
+nav_order: 3
 ---
 
-# Derivatives
+# Derivatives & Preprocessing
 
 ```
 derivatives/
@@ -32,3 +33,11 @@ BIDS raw (NIfTI + JSON + events TSV)
 - MRIQC and fMRIPrep can likely run in parallel, producing complementary QA output.
 - Long-term goal: a single `fmriprep/` output directory (the current `fmriprepFR/`
   and `QA/` directories are legacy and will be deprecated).
+
+## Minimally Preprocessed Version
+
+_Documentation forthcoming._
+
+## GLMSingle Output
+
+_Documentation forthcoming._

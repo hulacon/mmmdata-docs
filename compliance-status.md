@@ -1,7 +1,7 @@
 ---
-title: Compliance Status
+title: Quality & Compliance
 parent: Dataset Description
-nav_order: 8
+nav_order: 6
 ---
 
 # BIDS Compliance Status

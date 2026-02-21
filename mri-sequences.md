@@ -1,7 +1,8 @@
 ---
-title: MRI Sequence Information
-parent: Dataset Description
-nav_order: 9
+title: MRI Sequences
+parent: Data Acquisition
+grand_parent: Dataset Description
+nav_order: 1
 ---
 
 # MRI Sequence Information
