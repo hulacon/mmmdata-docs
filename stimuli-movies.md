@@ -20,7 +20,18 @@ Short films (~4 minutes each) shown during naturalistic encoding sessions
 - **Movie files**: 60 `.mov` files in `movies/movie_files/`, named
   `{Title}_trimmed_normalized_filtered.mov`
 - **Movie cues**: 60 `.jpg` recall cue images in `movies/movie_cues/`, named
-  `{Title}_cue.jpg`
+  `{Title}_cue.jpg` (see [Movie Cue Images](#movie-cue-images) below)
+
+## Movie Cue Images
+
+During free recall, participants are prompted with a movie title. If they cannot
+recall which movie the title refers to, they are shown a **cue image** — a
+single representative frame from the film. The cue is designed to orient the
+participant without biasing their memory of the movie's content.
+
+- **Count**: 60 images (one per movie)
+- **Format**: JPG
+- **Location**: `movies/movie_cues/{Title}_cue.jpg`
 
 ## Recall Conditions
 
@@ -59,3 +70,21 @@ Each session contains 6–8 movies:
 
 Blank rows in the CSV separate sessions. Rows without a condition value are
 carry-over movies from the prior session.
+
+## Computational Features (viz2psy)
+
+Movie frames and cue images are processed with
+[viz2psy](https://github.com/hulacon/viz2psy), producing per-movie temporal
+feature timeseries in `movies/viz2psy_scores/`.
+
+For each movie, the output includes:
+- **`{Title}_scores.csv`** — one row per sampled frame, indexed by `time` (seconds),
+  with ~2,900 feature columns (memorability, emotion, CLIP embeddings, etc.)
+- **`{Title}_scores.meta.json`** — feature definitions and provenance
+- **`{Title}_scores_dashboard.html`** — interactive visualization of features over time
+- **`{Title}_scores_frames/`** — extracted frame images (JPG)
+
+Cue images are scored separately in a consolidated cue output file.
+
+See the [viz2psy documentation](https://github.com/hulacon/viz2psy) for full
+feature definitions.
