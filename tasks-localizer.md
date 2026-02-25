@@ -151,7 +151,11 @@ Events for ses-30 were converted via `mmmdata/raw2bids_converters/localizer_even
 
 ## Tonotopy Mapping (task-tone)
 
-**Source:** Custom in-house implementation. Follows a standard phase-encoding tonotopy paradigm using swept pure tones in ascending and descending frequency order. Written in PsychoPy. Not derived from any specific published protocol.
+**Source:** PsychoPy implementation by Futing Zou, based on the phase-encoded tonotopy paradigm from Da Costa et al. (2011, 2013).
+
+**Citations:**
+- Da Costa, S., van der Zwaag, W., Marques, J. P., Frackowiak, R. S. J., Clarke, S., & Saenz, M. (2011). Human primary auditory cortex follows the shape of Heschl's gyrus. *Journal of Neuroscience*, 31(40), 14067–14075. <https://doi.org/10.1523/JNEUROSCI.2000-11.2011>
+- Da Costa, S., van der Zwaag, W., Miller, L. M., Clarke, S., & Saenz, M. (2013). Tuning in to sound: Frequency-selective attentional filter in human primary auditory cortex. *Journal of Neuroscience*, 33(5), 1858–1863. <https://doi.org/10.1523/JNEUROSCI.4405-12.2013>
 
 ### Design
 - 15 trials per run, 32 s each (28 s swept tone + 4 s ITI)
