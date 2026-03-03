@@ -27,9 +27,9 @@ nav_order: 1
 │   │   └── func/                 # localizer tasks
 │   ├── ses-04/ through ses-28/
 │   │   ├── fmap/
-│   │   └── func/                 # TB or NAT memory tasks
-│   ├── ses-29/
-│   │   └── beh/                  # Behavioral data (awaiting BIDSification)
+│   │   ├── beh/                  # Behavioral response files (e.g., TB2AFC)
+│   │   └── func/                 # TB or NAT memory tasks + events + physio
+│   ├── ses-29/                   # Out-of-scanner behavioral session (not yet BIDSified)
 │   └── ses-30/
 │       ├── anat/                 # Final T1w
 │       ├── fmap/
@@ -40,7 +40,7 @@ nav_order: 1
 ├── sourcedata/
 ├── inventory/
 ├── code/
-├── phenotype/                    # Currently empty
+├── phenotype/                    # Questionnaire & debriefing data (VVIQ, final debriefing)
 └── stimuli/                      # Shared stimulus files (see stimuli.md)
     ├── shared1000/               # 1,000 NSD shared images (PNG) + metadata CSVs
     │   ├── nsd_stim_info.csv     # NSD stimulus metadata (nsdId links to filenames)
@@ -64,7 +64,8 @@ All NIfTI files are gzipped (`.nii.gz`). Every NIfTI has a paired JSON sidecar.
 | Datatype | Suffixes | Sidecars | Notes |
 |----------|----------|----------|-------|
 | `anat/` | `T1w.nii.gz`, `T2w.nii.gz` | `.json` | acq-MPR for T1w; acq-SPC and acq-oblcor for T2w |
-| `func/` | `bold.nii.gz` | `.json`, `_events.tsv` (missing) | One per task/run |
+| `func/` | `bold.nii.gz`, `sbref.nii.gz` | `.json`, `_events.tsv`, `_events.json` | One set per task/run |
+| `func/` | `_physio.tsv.gz` | `_physio.json` | `recording-cardiac`, `recording-pulse`, `recording-respiratory`, or `recording-eye` |
 | `dwi/` | `dwi.nii.gz` | `.json`, `.bval`, `.bvec` | Four phase-encoding directions in ses-01/ses-28 |
-| `fmap/` | `epi.nii.gz` | `.json` | AP/PA pairs, typically 2 runs per session |
-| `beh/` | TBD | TBD | ses-29 only, awaiting BIDSification |
+| `fmap/` | `epi.nii.gz` | `.json` (with `B0FieldIdentifier`) | AP/PA pairs, typically 2 runs per session |
+| `beh/` | `_beh.tsv` | `_beh.json` | Behavioral response files (e.g., TB2AFC in ses-04–18) |

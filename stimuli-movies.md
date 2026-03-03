@@ -71,6 +71,18 @@ Each session contains 6–8 movies:
 Blank rows in the CSV separate sessions. Rows without a condition value are
 carry-over movies from the prior session.
 
+## Movie Annotations
+
+Hand-annotated event descriptions for each movie, stored as Excel workbooks in
+`movies/movie_annotations/`. Each movie has one annotation file named
+`{Title}_annotation_master_{initials}.xlsx`, where `{initials}` identifies the
+annotator.
+
+- **Count**: 63 annotation files covering all movie stimuli
+- **Format**: XLSX
+- **Location**: `movies/movie_annotations/`
+- **Annotators**: Multiple team members (identified by initials: SL, JL, HK, DP, LH)
+
 ## Computational Features (viz2psy)
 
 Movie frames and cue images are processed with

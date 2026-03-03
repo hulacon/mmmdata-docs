@@ -31,10 +31,12 @@ stimuli/
 │   ├── coco_annotations.csv       # Per-image COCO metadata
 │   ├── coco_captions.csv          # Per-caption file (5 per image)
 │   ├── viz2psy_scores.csv         # Computational image features (viz2psy)
-│   └── viz2psy_scores.meta.json   # Feature definitions and provenance
+│   ├── viz2psy_scores.meta.json   # Feature definitions and provenance
+│   └── viz2psy_scores_dashboard.html  # Interactive feature visualization
 ├── movies/                        # Movie stimuli for NAT encoding
 │   ├── movie_files/               # 60 trimmed .mov files
 │   ├── movie_cues/                # 60 recall cue images (.jpg)
+│   ├── movie_annotations/         # 63 hand-annotated event descriptions (.xlsx)
 │   ├── viz2psy_scores/            # Per-movie temporal features (viz2psy)
 │   ├── MMM movies - Sheet1.csv    # Session-by-session movie schedule
 │   └── short films 4 minutes.rtf  # Source notes and links

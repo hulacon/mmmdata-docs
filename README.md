@@ -27,7 +27,8 @@ Overview
 │   ├── stimuli.md                 # Overview, directory structure, assignment
 │   ├── stimuli-visual.md          # NSD shared1000 images + COCO metadata
 │   ├── stimuli-auditory.md        # Toronto Word Pool (twp1000) audio
-│   └── stimuli-movies.md          # Short films, recall conditions, schedule
+│   ├── stimuli-movies.md          # Short films, recall conditions, annotations
+│   └── stimuli_features.md        # Computational features (viz2psy)
 │
 ├── Data Acquisition/
 │   ├── data-acquisition.md        # Modality summary table
@@ -37,8 +38,9 @@ Overview
 ├── Data Organization/
 │   ├── data-organization.md       # BIDS overview
 │   ├── file-organization.md       # BIDS directory tree & naming conventions
-│   ├── sourcedata.md              # Source data structure & migration
-│   └── derivatives.md             # Preprocessing pipelines & derivatives
+│   ├── sourcedata.md              # Source data structure
+│   ├── derivatives.md             # Preprocessing pipelines & derivatives
+│   └── bidsification.md           # BIDSification pipeline & conversion details
 │
 ├── compliance-status.md           # BIDS compliance checklists
 ├── access.md                      # Data access & availability

@@ -15,21 +15,33 @@ nav_order: 6
 - [x] Fieldmap AP/PA pairs for distortion correction
 - [x] `dataset_description.json`
 - [x] File inventory system (`inventory/bids_file_inventory.tsv`)
+- [x] **Task relabeling**: Tasks use `TB*` (trial-based), `NAT*` (naturalistic),
+      `FIN*` (final session), and `INIT*` (baseline) prefixes
+- [x] **Events files**: `_events.tsv` + `_events.json` generated for all
+      functional runs across sessions
+- [x] **Fieldmap matching**: Uses `B0FieldIdentifier` / `B0FieldSource` sidecar
+      approach (not `IntendedFor`)
+- [x] **MRIQC**: Running for all subjects/sessions; HTML reports generated for
+      structural and functional scans
+- [x] **`participants.tsv`**: Correct subject IDs (sub-03/04/05) with full
+      demographics (age, sex, handedness, vision, education, etc.)
+- [x] **Phenotype data**: `phenotype/vviq.tsv` and `phenotype/final_debriefing.tsv`
+      with JSON sidecar dictionaries
+- [x] **Physiological recordings**: Scanner physio (`recording-cardiac`,
+      `recording-pulse`, `recording-respiratory`) and eye-tracking
+      (`recording-eye`) converted to BIDS `_physio.tsv.gz` format
+- [x] **Behavioral sidecar files**: `_beh.tsv` + `_beh.json` in `beh/` directories
 
 ## In Progress
 
-- [ ] **Task relabeling**: encoding/retrieval/math/resting → TB*/NAT* prefixes
-- [ ] **Events files**: Task timing data exists in sourcedata but has not been
-      converted to BIDS `_events.tsv` format (blocked on task relabeling)
-- [ ] **Behavioral data (ses-29)**: Needs BIDSification
-- [ ] **Fieldmap `IntendedFor`**: Sidecar mappings need updating after task relabeling
-- [ ] **MRIQC**: Needs to be run for all subjects/sessions
+- [ ] **Behavioral data (ses-29)**: Out-of-scanner behavioral session not yet
+      BIDSified for any subject
+- [ ] **MRIQC group report**: Individual reports available; group-level
+      aggregation pending
 
 ## Needs Fixing
 
-- [ ] **`participants.tsv`**: Contains wrong subject IDs (lists sub-01/02/03
-      instead of sub-03/04/05). Demographics TBD.
-- [ ] **`README`**: Empty file, needs dataset description
+- [ ] **`README`**: Empty file at BIDS root, needs dataset description
 - [ ] **Cross-subject inconsistencies**: Fieldmap run-entity labeling differs
       across subjects in some sessions (e.g., ses-30)
 
@@ -37,5 +49,4 @@ nav_order: 6
 
 - Are the 4 DWI phase-encoding directions (AP/PA/LR/RL) intentional for all
   future subjects, or are LR/RL legacy acquisitions?
-- What are the final task IDs for session 30 memory tests?
 - Data sharing policy: what is public-facing vs restricted? (Deferred for now.)

@@ -21,11 +21,14 @@ discrete series of trials) relates to doing so in more naturalistic settings
 
 ## Participants
 
-| Subject | Status |
-|---------|--------|
-| sub-01, sub-02 | Pilot. Raw DICOMs preserved in `sourcedata/dicoms/` only. Not BIDSified. |
-| sub-03, sub-04, sub-05 | Active. Fully BIDSified with 30 sessions each. |
-| sub-06 through sub-09 | Planned. Will follow the same session schedule. |
+| Subject | Age | Sex | Handedness | Vision | Status |
+|---------|-----|-----|------------|--------|--------|
+| sub-01, sub-02 | — | — | — | — | Pilot. DICOMs in `sourcedata/dicoms/` only. Not BIDSified. |
+| sub-03 | 20 | M | right | normal | Active. Fully BIDSified (ses-01–28, ses-30). |
+| sub-04 | 28 | M | right | normal | Active. Fully BIDSified (ses-01–28, ses-30). |
+| sub-05 | 22 | F | right | corrected | Active. Fully BIDSified (ses-01–28, ses-30). |
+| sub-06 through sub-09 | — | — | — | — | Planned. Will follow the same session schedule. |
 
-Demographics (age, sex) will be provided later. The current `participants.tsv` is
-placeholder scaffolding and does not reflect the actual subjects.
+Full demographics (including education, race, sleep, medication history) are
+recorded in `participants.tsv`. Questionnaire data (VVIQ, final debriefing)
+are in `phenotype/`.
