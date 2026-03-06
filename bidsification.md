@@ -367,6 +367,7 @@ system (for imaging DICOMs).
 - **sub-03/ses-24:** Three EDFs mislabeled as retrieval; two are actually encoding (mapped via `EDF_ANOMALIES` in `generate_inventory.py`)
 - **sub-04/ses-20:** Retry protocol `free_recall_retrieval_run1_attempt2` — handled via `run_protocols` override
 - **sub-05/ses-24:** Duplicate `free_recall_retrieval_run1` series — needs SeriesNumber override
+- **sub-05/ses-02 aborted floc_run1:** Scanner started `localizer_floc_run1` (Series 27, 5 volumes) then aborted and restarted as a new series (Series 30, 208 volumes). Both share the same `ProtocolName`. Fixed via explicit `run_series` binding in overrides to pin floc runs to Series 30/34/38 (the good acquisitions). Without this, dcm2bids picks up the truncated Series 27 as run-01, shifting all subsequent floc run numbers and misaligning physio files.
 - **PhysioLog stubs:** 372 of 611 PhysioLog DICOMs are info-only (no waveform data due to connectivity issues) — automatically detected and skipped
 - **Truncated PhysioLogs:** 7 files with <50% coverage — converted but partial
 
