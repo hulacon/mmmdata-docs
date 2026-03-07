@@ -336,6 +336,12 @@ has_audio = true  # verbal recall recordings in sourcedata/sub-XX/ses-29/audio/
 description = "Final memory tests + makeup localizers"
 tasks = ["FINretrieval", "FINtimeline", "FIN2AFC", "auditory", "motor", "fixation"]
 
+[sessions.final.scans.T1w]
+datatype = "anat"
+suffix = "T1w"
+runs = 1
+dimensions = [256, 256, 176]
+
 [sessions.final.fieldmaps]
 datatype = "fmap"
 type = "epi"
@@ -879,14 +885,15 @@ category = "events"
 description = "No TBencoding events/scans (partial session: math + retrieval only)"
 
 # ---------------------------------------------------------------------------
-# Physio conversion backlog
-# Many sessions have physio_used=true but no BIDS physio files yet.
-# This is a conversion status issue, not a missing-data issue.
+# Physio collection gaps
+# Many sessions where physio_used=true have no usable BIDS physio files.
+# Raw files were technically collected but are empty due to equipment issues
+# during acquisition. This is a data-loss issue, not a conversion backlog.
 # ---------------------------------------------------------------------------
 [[exceptions]]
 subject = "*"
 session = "*"
-category = "physio_conversion"
+category = "physio_collection"
 description = """Approximately 50% of sessions where physio_used=true have no \
-BIDS physio files. This reflects incomplete conversion, not missing raw data. \
-Do not flag these as errors until conversion pipeline is run."""
+usable physio data. Raw files were collected but are empty due to equipment \
+issues during acquisition."""
