@@ -1,0 +1,892 @@
+# MMMData Dataset Expectations Schema
+# Defines what the dataset *should* contain — used by validation engine (Phase 4)
+# to compare expectations against reality (manifest).
+#
+# Structure:
+#   [meta]            — dataset-level metadata
+#   [subjects]        — subject list
+#   [sessions.*]      — session type definitions with scan tables
+#   [tasks.*]         — per-task expectations (volumes, events, etc.)
+#   [[exceptions]]    — known per-subject/session deviations
+
+# ---------------------------------------------------------------------------
+# Dataset metadata
+# ---------------------------------------------------------------------------
+[meta]
+dataset_name = "MMMData"
+bids_version = "1.9.0"
+scanner = "Siemens MAGNETOM Prisma 3T"
+tr = 1.5  # seconds, all functional tasks
+n_sessions_per_subject = 30
+
+# ---------------------------------------------------------------------------
+# Subjects
+# ---------------------------------------------------------------------------
+[subjects]
+active = ["sub-03", "sub-04", "sub-05"]
+pilot = ["sub-01", "sub-02"]  # not BIDSified
+
+# ---------------------------------------------------------------------------
+# Session types — which sessions map to which type
+# ---------------------------------------------------------------------------
+[session_types]
+anat        = ["ses-01"]
+localizer   = ["ses-02", "ses-03"]
+cued_recall = ["ses-04", "ses-05", "ses-06", "ses-07", "ses-08", "ses-09",
+               "ses-10", "ses-11", "ses-12", "ses-13", "ses-14", "ses-15",
+               "ses-16", "ses-17", "ses-18"]
+free_recall = ["ses-19", "ses-20", "ses-21", "ses-22", "ses-23", "ses-24",
+               "ses-25", "ses-26", "ses-27", "ses-28"]
+behavioral  = ["ses-29"]
+final       = ["ses-30"]
+
+# ---------------------------------------------------------------------------
+# Anatomy & diffusion expectations (ses-01, ses-28)
+# ---------------------------------------------------------------------------
+[sessions.anat]
+description = "Baseline anatomical + diffusion + resting state"
+tasks = ["INITresting"]
+
+[sessions.anat.scans.T1w]
+datatype = "anat"
+suffix = "T1w"
+runs = 1
+dimensions = [256, 256, 176]
+
+[sessions.anat.scans.T2w]
+datatype = "anat"
+suffix = "T2w"
+runs = 1
+dimensions = [256, 256, 176]
+
+[sessions.anat.scans.T2w_coronal]
+datatype = "anat"
+suffix = "T2w"
+acq = "coronal"
+runs = 1
+
+[sessions.anat.scans.dwi]
+datatype = "dwi"
+suffix = "dwi"
+runs = 4  # AP, PA, LR, RL phase encoding directions
+
+[sessions.anat.scans.INITresting]
+datatype = "func"
+task = "INITresting"
+suffix = "bold"
+runs = 1
+has_events = false
+
+[sessions.anat.fieldmaps]
+datatype = "fmap"
+type = "epi"
+directions = ["AP", "PA"]
+
+# Anatomy repeat in ses-28 (in addition to free_recall tasks)
+[sessions.anat_repeat]
+description = "Second anatomical + DWI acquisition (ses-28 only)"
+sessions = ["ses-28"]
+
+[sessions.anat_repeat.scans.T1w]
+datatype = "anat"
+suffix = "T1w"
+runs = 1
+
+[sessions.anat_repeat.scans.dwi]
+datatype = "dwi"
+suffix = "dwi"
+runs = 4
+
+# ---------------------------------------------------------------------------
+# Localizer sessions (ses-02, ses-03)
+# ---------------------------------------------------------------------------
+[sessions.localizer]
+description = "Functional localizer tasks"
+tasks = ["prf", "floc", "auditory", "tone"]
+
+[sessions.localizer.fieldmaps]
+datatype = "fmap"
+type = "epi"
+directions = ["AP", "PA"]
+groups = "1-3"  # variable: 1-3 fmap groups depending on session structure
+
+# -- PRF --
+[tasks.prf]
+task_label = "prf"
+datatype = "func"
+session_type = "localizer"
+runs_per_session = 3
+total_runs_per_subject = 6  # 3 per localizer session × 2 sessions
+has_events = true  # not yet converted; timing derivable from experiment code
+
+
+# -- fLoc --
+[tasks.floc]
+task_label = "floc"
+datatype = "func"
+session_type = "localizer"
+runs_per_session = "variable"  # 3-6 runs
+runs_range = [3, 6]
+total_runs_per_subject = "variable"  # depends on subject
+has_events = true  # not yet converted; timing from .par files
+
+# Known inventory:
+#   sub-03: ses-03 = 6 runs
+#   sub-04: ses-04 = 6 runs (makeup from ses-03 failure)
+#   sub-05: ses-02 = 4 runs, ses-03 = 3 runs
+
+# -- Auditory localizer --
+[tasks.auditory]
+task_label = "auditory"
+datatype = "func"
+session_type = "localizer"  # also in ses-30
+sessions = ["ses-02", "ses-03", "ses-30"]  # 1 localizer session + ses-30
+runs_per_session = 1
+total_runs_per_subject = 2  # 1 in ses-02 or ses-03, 1 in ses-30
+has_events = true  # ses-30 converted; ses-02/03 not yet converted
+
+expected_event_rows = 2  # only ses-30 events exist
+event_columns = [
+    "onset", "duration", "subj_num", "ses_num", "run_idx",
+    "trial_type", "trial_id",
+]
+
+# -- Tonotopy --
+[tasks.tone]
+task_label = "tone"
+datatype = "func"
+session_type = "localizer"
+runs_per_session = "variable"  # 1-2 per session
+runs_range = [1, 2]
+total_runs_per_subject = 2  # 1 low-to-high + 1 high-to-low sweep
+# sub-05 has 3 runs (2 in ses-03); see exceptions
+has_events = true  # not yet converted; timing deterministic from code
+
+
+# ---------------------------------------------------------------------------
+# Trial-based memory sessions (ses-04 to ses-18)
+# ---------------------------------------------------------------------------
+[sessions.cued_recall]
+description = "Trial-based cued recall memory paradigm"
+tasks = ["TBencoding", "TBretrieval", "TBmath", "TBresting", "TB2AFC"]
+
+[sessions.cued_recall.fieldmaps]
+datatype = "fmap"
+type = "epi"
+directions = ["AP", "PA"]
+groups = "1-3"
+
+# -- TB Encoding --
+[tasks.TBencoding]
+task_label = "TBencoding"
+datatype = "func"
+session_type = "cued_recall"
+runs_per_session = 3
+has_events = true
+
+expected_event_rows = 65
+event_columns = [
+    "onset", "duration", "onset_actual", "duration_actual",
+    "subj_num", "ses_num", "run_idx", "trial_type", "modality",
+    "word", "pairId", "mmmId", "nsdId", "itmno", "sharedId",
+    "voiceId", "voice", "enCon", "reCon", "resp", "resp_RT", "trial_id",
+]
+# ses-18 has no TBencoding runs (partial session: math + retrieval only)
+
+# -- TB Retrieval --
+[tasks.TBretrieval]
+task_label = "TBretrieval"
+datatype = "func"
+session_type = "cued_recall"
+runs_per_session = "variable"  # typically 2-4; ses-04 has 2, ses-18 has 2
+runs_range = [2, 4]
+has_events = true
+
+expected_event_rows = 45
+event_columns = [
+    "onset", "duration", "onset_actual", "duration_actual",
+    "subj_num", "ses_num", "run_idx", "trial_type", "modality",
+    "word", "pairId", "mmmId", "nsdId", "itmno", "sharedId",
+    "voiceId", "voice", "enCon", "reCon", "resp", "resp_RT", "cueId", "trial_id",
+]
+
+# -- TB Math --
+[tasks.TBmath]
+task_label = "TBmath"
+datatype = "func"
+session_type = "cued_recall"
+runs_per_session = 1
+has_events = true
+
+expected_event_rows = 12  # 1 outlier: sub-04 ses-06 has 10 rows
+event_columns = [
+    "onset", "duration", "onset_actual", "duration_actual",
+    "subj_num", "ses_num", "run_idx", "trial_type", "modality",
+    "problem", "correct_answer", "resp", "resp_RT", "trial_id",
+]
+
+# -- TB Resting --
+[tasks.TBresting]
+task_label = "TBresting"
+datatype = "func"
+session_type = "cued_recall"
+runs_per_session = 1
+has_events = false
+
+
+# -- TB 2AFC (behavioral only, in beh/ not func/) --
+[tasks.TB2AFC]
+task_label = "TB2AFC"
+datatype = "beh"
+session_type = "cued_recall"
+runs_per_session = 1
+has_beh_tsv = true
+has_beh_json = true
+
+# ---------------------------------------------------------------------------
+# Naturalistic memory sessions (ses-19 to ses-28)
+# ---------------------------------------------------------------------------
+[sessions.free_recall]
+description = "Naturalistic movie-watching and free recall"
+tasks = ["NATencoding", "NATretrieval", "NATmath", "NATresting"]
+
+[sessions.free_recall.fieldmaps]
+datatype = "fmap"
+type = "epi"
+directions = ["AP", "PA"]
+groups = "1-3"
+
+# -- NAT Encoding --
+[tasks.NATencoding]
+task_label = "NATencoding"
+datatype = "func"
+session_type = "free_recall"
+runs_per_session = 2
+has_events = true
+
+expected_event_rows = 13  # ses-28 has 10 rows; occasional 12-row outliers
+event_rows_range = [10, 13]
+event_columns = [
+    "onset", "duration", "trial_type", "trial_num",
+    "subj_num", "ses_num", "run_idx", "condition",
+    "movie_name", "movie_length", "style",
+    "free_recall_position", "movie_title.started", "movie_title.stopped",
+]
+
+# -- NAT Retrieval --
+[tasks.NATretrieval]
+task_label = "NATretrieval"
+datatype = "func"
+session_type = "free_recall"
+runs_per_session = 1  # single run (no run entity in filename)
+has_events = true
+
+expected_event_rows = 33  # ses-19 has 25 rows (fewer movies in first session)
+event_rows_range = [25, 33]
+event_columns = [
+    "onset", "duration", "trial_type", "trial_num",
+    "subj_num", "ses_num", "condition",
+    "movie_name", "movie_length", "style",
+    "free_recall_position", "cue_response",
+    "recall1.started", "recall1.stopped",
+]
+
+# -- NAT Math --
+[tasks.NATmath]
+task_label = "NATmath"
+datatype = "func"
+session_type = "free_recall"
+runs_per_session = 1
+has_events = true
+
+expected_event_rows = 10
+event_columns = [
+    "onset", "duration", "onset_actual", "duration_actual",
+    "subj_num", "ses_num", "run_idx", "trial_type", "modality",
+    "problem", "correct_answer", "resp", "resp_RT", "trial_id",
+]
+
+# -- NAT Resting --
+[tasks.NATresting]
+task_label = "NATresting"
+datatype = "func"
+session_type = "free_recall"
+runs_per_session = 1
+has_events = false
+
+
+# ---------------------------------------------------------------------------
+# Final sessions (ses-29, ses-30)
+# ---------------------------------------------------------------------------
+[sessions.behavioral]
+description = "Out-of-scanner final free recall (ses-29, no imaging)"
+tasks = ["FINfreerecall"]
+
+# -- FIN Free Recall (behavioral only) --
+[tasks.FINfreerecall]
+task_label = "FINfreerecall"
+datatype = "beh"
+session_type = "behavioral"
+runs_per_session = 1
+has_beh_tsv = true
+has_beh_json = true
+has_audio = true  # verbal recall recordings in sourcedata/sub-XX/ses-29/audio/
+
+[sessions.final]
+description = "Final memory tests + makeup localizers"
+tasks = ["FINretrieval", "FINtimeline", "FIN2AFC", "auditory", "motor", "fixation"]
+
+[sessions.final.fieldmaps]
+datatype = "fmap"
+type = "epi"
+directions = ["AP", "PA"]
+
+# -- FIN Retrieval --
+[tasks.FINretrieval]
+task_label = "FINretrieval"
+datatype = "func"
+session_type = "final"
+runs_per_session = 4
+has_events = true
+
+expected_event_rows = 65
+event_columns = [
+    "onset", "duration", "onset_actual", "duration_actual",
+    "subj_num", "ses_num", "run_idx", "trial_type", "modality",
+    "word", "pairId", "mmmId", "nsdId", "itmno", "sharedId",
+    "voiceId", "voice", "enCon", "reCon", "resp", "resp_RT", "cueId",
+    "enSession", "enRun", "enTrial", "trial_accuracy", "trial_id",
+]
+
+# -- FIN Timeline --
+[tasks.FINtimeline]
+task_label = "FINtimeline"
+datatype = "func"
+session_type = "final"
+runs_per_session = 2
+has_events = true
+
+
+# -- FIN 2AFC --
+[tasks.FIN2AFC]
+task_label = "FIN2AFC"
+datatype = "func"
+session_type = "final"
+runs_per_session = 2
+has_events = true
+
+
+# -- Motor localizer --
+[tasks.motor]
+task_label = "motor"
+datatype = "func"
+session_type = "final"
+runs_per_session = 2
+has_events = true
+
+expected_event_rows = 30
+event_columns = [
+    "onset", "duration", "subj_num", "ses_num", "run_idx", "trial_type",
+]
+
+# -- Fixation --
+[tasks.fixation]
+task_label = "fixation"
+datatype = "func"
+session_type = "final"
+runs_per_session = 1
+has_events = true  # not yet converted; gaze position events for PEER/DeepMReye calibration
+
+
+# ---------------------------------------------------------------------------
+# Functional run defaults
+# These apply to ALL functional (bold) runs unless overridden per-task.
+# ---------------------------------------------------------------------------
+[functional_defaults]
+# Every bold run should have a matching sbref and JSON sidecar
+has_sbref = true
+has_json = true
+
+# Aspirationally, all functional runs should have physio and eyetracking.
+# In practice, collection was inconsistent — many sessions lack one or both.
+# Validation treats missing physio/eyetracking as warnings, not errors.
+physio_expected = true
+eyetracking_expected = true
+
+# ---------------------------------------------------------------------------
+# SBRef expectations
+# ---------------------------------------------------------------------------
+[sbref]
+suffix = "sbref"
+expected_for = ["bold"]  # every bold run should have a matching sbref
+# Matching rule: same sub/ses/task/run/dir entities, suffix = sbref
+# SBRef is a single-volume (3D) image with the same spatial dimensions as
+# the corresponding 4D bold: 124 x 124 x 69, voxel size 1.798 x 1.798 x 2.0 mm
+dimensions = [124, 124, 69]
+voxel_size = [1.798, 1.798, 2.0]
+
+# ---------------------------------------------------------------------------
+# Physio expectations
+# ---------------------------------------------------------------------------
+[physio]
+recording_types = ["cardiac", "pulse", "respiratory"]
+sampling_rate = 1000  # Hz
+
+[physio.eyetracking]
+recording_type = "eye"
+columns = ["eye1_x_coordinate", "eye1_y_coordinate", "eye1_pupil_size"]
+sampling_rate = 1000
+
+# ---------------------------------------------------------------------------
+# Derivatives expectations
+# ---------------------------------------------------------------------------
+[derivatives.fmriprep]
+pipeline = "fmriprep"
+expected_for = ["bold"]  # every bold run should have fmriprep output
+outputs = ["preproc", "brain_mask", "confounds"]
+
+[derivatives.mriqc]
+pipeline = "mriqc"
+expected_for = ["bold", "T1w"]
+outputs = ["group_bold", "group_T1w"]
+
+# ---------------------------------------------------------------------------
+# Known exceptions
+# Exceptions downgrade validation failures to "info" when matched.
+# ---------------------------------------------------------------------------
+
+# === SUB-03 ===
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-02"
+category = "dcm2bids"
+description = "Custom task list: prf (3 runs) + auditory + tone; 2 fmap groups"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-03"
+category = "dcm2bids"
+description = "Custom task list: floc (6 runs) + prf (3 runs) + tone; 3 fmap groups"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-07"
+category = "dcm2bids"
+description = "Extra DICOM series from restart; LCNI name mismatch (labeled MMM03_sess04CR)"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-10"
+category = "dcm2bids"
+description = "3 fmap groups (re-entry after encoding)"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-11"
+category = "dcm2bids"
+description = "Extra DICOM series from retrieval restart"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-12"
+category = "dcm2bids"
+description = "Extra DICOM series from retrieval restart"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-13"
+category = "dcm2bids"
+description = "LCNI name mismatch (labeled MMM_03_sess10)"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-18"
+category = "dcm2bids"
+description = "Extra AP fieldmap; may have been deleted at scan time"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-19"
+category = "behavioral"
+description = "Voice recording didn't save; no audio WAV"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-20"
+category = "dcm2bids"
+description = "Extra scout + AP/PA pair; use second set"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-20"
+category = "behavioral"
+description = "Recording saved only first 12MB; use voice memos backup"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-21"
+category = "behavioral"
+description = "Voice recording issue; use voice memos backup"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-24"
+category = "dcm2bids"
+description = "Extra DICOM series from restarts (volume crash; movie run 1 + recall run restarted)"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-28"
+category = "dcm2bids"
+description = "Extra anatomical scans at end (1 MPRAGE + 1 Diff)"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-30"
+category = "dcm2bids"
+description = "SeriesNumber disambiguation on FINretrieval runs 1-2; auditory localizer run deleted"
+
+[[exceptions]]
+subject = "sub-03"
+session = "ses-30"
+category = "behavioral"
+description = "Timeline beh file: use re-run only (first run crashed)"
+
+# === SUB-04 ===
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-02"
+category = "dcm2bids"
+description = "Custom task list: prf (3 runs) + auditory + tone; 2 fmap groups"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-03"
+category = "dcm2bids"
+description = "fLOC failed; prf (3 runs) + tone only; LCNI subject mismatch (labeled MMM_003_sess03)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-04"
+category = "dcm2bids"
+description = "6 makeup fLOC runs prepended (from ses-03 failure); split across 2 fmap groups"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-04"
+category = "behavioral"
+description = "No math events file (math not scanned this session)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-05"
+category = "behavioral"
+description = "No math events file (math not scanned this session)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-08"
+category = "dcm2bids"
+description = "Encoding run 3 repeated; extra DICOM series"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-09"
+category = "dcm2bids"
+description = "LCNI name note (labeled MMM_04_sess06CR)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-11"
+category = "dcm2bids"
+description = "Encoding restart (voice muffled); extra DICOM series"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-14"
+category = "dcm2bids"
+description = "Encoding run 2 restarted; extra DICOM series"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-16"
+category = "physio"
+description = "No respiratory data (battery dead); pulse oximetry still recorded"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-20"
+category = "dcm2bids"
+description = "Computer crashed mid-session; extra/incomplete DICOM series"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-20"
+category = "behavioral"
+description = "Audio recording on voice memos, not scan computer"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-22"
+category = "behavioral"
+description = "EDF naming anomaly: s4s4s1r (mistyped, actually encoding run 1)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-24"
+category = "behavioral"
+description = "EDF naming anomaly: s4s6r1 (missing phase letter, actually retrieval)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-25"
+category = "behavioral"
+description = "3 .EDF.tmp files (incomplete eye tracking recordings); skipped"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-25"
+category = "eyetracking"
+description = "eyetracking_used=true in sessions.tsv but no BIDS eye files on disk"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-28"
+category = "dcm2bids"
+description = "Extra anatomical scans at end (1 MPRAGE + 1 Diff)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-30"
+category = "dcm2bids"
+description = "Single fmap group; SeriesDescription matching strategy"
+
+# === SUB-05 ===
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-02"
+category = "dcm2bids"
+description = "Custom task list: prf + floc + tone; floc_run1 aborted after 5 volumes and restarted"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-03"
+category = "dcm2bids"
+description = "Custom task list: prf + floc + tone (2 runs) + auditory; 3 fmap groups"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-05"
+category = "dcm2bids"
+description = "Re-entry after retrieval run 3 (bathroom break); extra fieldmap set"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-06"
+category = "dcm2bids"
+description = "Retrieval runs 2 and 4 restarted; extra DICOM series"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-08"
+category = "dcm2bids"
+description = "Retrieval run 3 restarted; extra DICOM series"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-09"
+category = "dcm2bids"
+description = "Encoding run 2 stopped after ~30s (poor audio), restarted"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-10"
+category = "dcm2bids"
+description = "Accidentally ran fixation (stopped after 30s); encoding run 2 restarted"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-12"
+category = "dcm2bids"
+description = "Retrieval restart (words muffled); extra DICOM series"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-13"
+category = "dcm2bids"
+description = "Encoding run 1 restarted; extra DICOM series"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-17"
+category = "dcm2bids"
+description = "Disregard first AP fieldmap"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-18"
+category = "dcm2bids"
+description = "Retrieval run 1 restarted; extra DICOM series"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-19"
+category = "dcm2bids"
+description = "2-3 non-usable encoding runs (volume issues); 4th encoding run is good"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-19"
+category = "eyetracking"
+description = "eyetracking_used=false in sessions.tsv but eye files exist (quality concern)"
+applies_to_sessions = ["ses-19", "ses-20", "ses-21", "ses-22", "ses-23",
+                        "ses-24", "ses-25", "ses-26", "ses-27", "ses-28"]
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-20"
+category = "behavioral"
+description = "Forgot to switch persaio and add mic adaptor; audio may be affected"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-23"
+category = "physio"
+description = "Respiration not working this session"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-24"
+category = "dcm2bids"
+description = "Restroom break; reran anatomical and fieldmaps; extra series"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-26"
+category = "dcm2bids"
+description = "Headphones not correctly positioned; scouts restarted"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-28"
+category = "dcm2bids"
+description = "T1 MPRAGE not working; used alternative protocol (mprage_p2); 4 setters, only last accurate"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-30"
+category = "dcm2bids"
+description = "2 fmap groups; screen glitches during auditory (audio still recorded)"
+
+# === LOCALIZER RUN COUNT DEVIATIONS ===
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-03"
+category = "run_count"
+task = "tone"
+description = "3 tone runs instead of expected 2 (2 runs in ses-03)"
+
+# === EVENTS CONVERSION BACKLOG ===
+
+[[exceptions]]
+subject = "*"
+session = "*"
+category = "events_conversion"
+task = "prf"
+description = "Events not yet converted; timing derivable from experiment code (analyzePRF aperture matrices)"
+
+[[exceptions]]
+subject = "*"
+session = "*"
+category = "events_conversion"
+task = "floc"
+description = "Events not yet converted; timing derivable from .par files in experiment code"
+
+[[exceptions]]
+subject = "*"
+session = "*"
+category = "events_conversion"
+task = "tone"
+description = "Events not yet converted; timing deterministic from code (15 trials × 32s)"
+
+[[exceptions]]
+subject = "*"
+session = "*"
+category = "events_conversion"
+task = "fixation"
+description = "Events not yet converted; gaze position events for PEER/DeepMReye calibration"
+
+[[exceptions]]
+subject = "*"
+session = "ses-02"
+category = "events_conversion"
+task = "auditory"
+description = "Events not yet converted for ses-02/03; ses-30 events exist"
+
+[[exceptions]]
+subject = "*"
+session = "ses-03"
+category = "events_conversion"
+task = "auditory"
+description = "Events not yet converted for ses-02/03; ses-30 events exist"
+
+# === EVENTS OUTLIERS ===
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-06"
+category = "events"
+description = "TBmath has 10 rows instead of expected 12"
+
+[[exceptions]]
+subject = "*"
+session = "ses-28"
+category = "events"
+description = "NATencoding has 10 rows instead of typical 13 (fewer movies in final NAT session)"
+
+[[exceptions]]
+subject = "sub-04"
+session = "ses-21"
+category = "events"
+description = "NATencoding run-01 has 12 rows instead of typical 13"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-22"
+category = "events"
+description = "NATencoding run-02 has 12 rows instead of typical 13"
+
+[[exceptions]]
+subject = "sub-05"
+session = "ses-23"
+category = "events"
+description = "NATencoding run-02 has 12 rows instead of typical 13"
+
+[[exceptions]]
+subject = "*"
+session = "ses-19"
+category = "events"
+description = "NATretrieval has 25 rows instead of typical 33 (fewer movies in first NAT session)"
+
+[[exceptions]]
+subject = "*"
+session = "ses-18"
+category = "events"
+description = "No TBencoding events/scans (partial session: math + retrieval only)"
+
+# ---------------------------------------------------------------------------
+# Physio conversion backlog
+# Many sessions have physio_used=true but no BIDS physio files yet.
+# This is a conversion status issue, not a missing-data issue.
+# ---------------------------------------------------------------------------
+[[exceptions]]
+subject = "*"
+session = "*"
+category = "physio_conversion"
+description = """Approximately 50% of sessions where physio_used=true have no \
+BIDS physio files. This reflects incomplete conversion, not missing raw data. \
+Do not flag these as errors until conversion pipeline is run."""
