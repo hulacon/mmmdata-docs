@@ -75,6 +75,7 @@ datatype = "func"
 task = "INITresting"
 suffix = "bold"
 runs = 1
+expected_volumes = 280
 has_events = false
 
 [sessions.anat.fieldmaps]
@@ -117,6 +118,7 @@ datatype = "func"
 session_type = "localizer"
 runs_per_session = 3
 total_runs_per_subject = 6  # 3 per localizer session × 2 sessions
+expected_volumes = 200
 has_events = true  # not yet converted; timing derivable from experiment code
 
 
@@ -128,6 +130,7 @@ session_type = "localizer"
 runs_per_session = "variable"  # 3-6 runs
 runs_range = [3, 6]
 total_runs_per_subject = "variable"  # depends on subject
+expected_volumes = 208
 has_events = true  # not yet converted; timing from .par files
 
 # Known inventory:
@@ -143,6 +146,7 @@ session_type = "localizer"  # also in ses-30
 sessions = ["ses-02", "ses-03", "ses-30"]  # 1 localizer session + ses-30
 runs_per_session = 1
 total_runs_per_subject = 2  # 1 in ses-02 or ses-03, 1 in ses-30
+expected_volumes = 400  # ses-02/03; ses-30 has 408 (see exceptions)
 has_events = true  # ses-30 converted; ses-02/03 not yet converted
 
 expected_event_rows = 2  # only ses-30 events exist
@@ -159,7 +163,8 @@ session_type = "localizer"
 runs_per_session = "variable"  # 1-2 per session
 runs_range = [1, 2]
 total_runs_per_subject = 2  # 1 low-to-high + 1 high-to-low sweep
-# sub-05 has 3 runs (2 in ses-03); see exceptions
+# sub-05 has 2 runs (both in ses-03; ses-02 tone excluded due to truncation)
+expected_volumes = 320
 has_events = true  # not yet converted; timing deterministic from code
 
 
@@ -182,6 +187,7 @@ task_label = "TBencoding"
 datatype = "func"
 session_type = "cued_recall"
 runs_per_session = 3
+expected_volumes = 210
 has_events = true
 
 expected_event_rows = 65
@@ -200,6 +206,7 @@ datatype = "func"
 session_type = "cued_recall"
 runs_per_session = "variable"  # typically 2-4; ses-04 has 2, ses-18 has 2
 runs_range = [2, 4]
+expected_volumes = 150
 has_events = true
 
 expected_event_rows = 45
@@ -216,6 +223,7 @@ task_label = "TBmath"
 datatype = "func"
 session_type = "cued_recall"
 runs_per_session = 1
+expected_volumes = 40
 has_events = true
 
 expected_event_rows = 12  # 1 outlier: sub-04 ses-06 has 10 rows
@@ -231,6 +239,7 @@ task_label = "TBresting"
 datatype = "func"
 session_type = "cued_recall"
 runs_per_session = 1
+expected_volumes = 200
 has_events = false
 
 
@@ -262,6 +271,8 @@ task_label = "NATencoding"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 2
+expected_volumes = "variable"  # movie lengths differ
+expected_volumes_range = [500, 850]
 has_events = true
 
 expected_event_rows = 13  # ses-28 has 10 rows; occasional 12-row outliers
@@ -279,6 +290,8 @@ task_label = "NATretrieval"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 1  # single run (no run entity in filename)
+expected_volumes = "variable"  # participant-paced free recall
+expected_volumes_range = [300, 1900]
 has_events = true
 
 expected_event_rows = 33  # ses-19 has 25 rows (fewer movies in first session)
@@ -297,6 +310,7 @@ task_label = "NATmath"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 1
+expected_volumes = 40
 has_events = true
 
 expected_event_rows = 10
@@ -312,6 +326,7 @@ task_label = "NATresting"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 1
+expected_volumes = 200
 has_events = false
 
 
@@ -334,7 +349,7 @@ has_audio = true  # verbal recall recordings in sourcedata/sub-XX/ses-29/audio/
 
 [sessions.final]
 description = "Final memory tests + makeup localizers"
-tasks = ["FINretrieval", "FINtimeline", "FIN2AFC", "auditory", "motor", "fixation"]
+tasks = ["FINretrieval", "FINtimeline", "FIN2AFC", "FINresting", "auditory", "motor", "fixation"]
 
 [sessions.final.scans.T1w]
 datatype = "anat"
@@ -353,6 +368,7 @@ task_label = "FINretrieval"
 datatype = "func"
 session_type = "final"
 runs_per_session = 4
+expected_volumes = 210
 has_events = true
 
 expected_event_rows = 65
@@ -388,6 +404,7 @@ task_label = "motor"
 datatype = "func"
 session_type = "final"
 runs_per_session = 2
+expected_volumes = 400
 has_events = true
 
 expected_event_rows = 30
@@ -401,7 +418,17 @@ task_label = "fixation"
 datatype = "func"
 session_type = "final"
 runs_per_session = 1
+expected_volumes = 50
 has_events = true  # not yet converted; gaze position events for PEER/DeepMReye calibration
+
+# -- FIN Resting --
+[tasks.FINresting]
+task_label = "FINresting"
+datatype = "func"
+session_type = "final"
+runs_per_session = 1
+expected_volumes = 280
+has_events = false
 
 
 # ---------------------------------------------------------------------------
@@ -675,7 +702,7 @@ description = "Single fmap group; SeriesDescription matching strategy"
 subject = "sub-05"
 session = "ses-02"
 category = "dcm2bids"
-description = "Custom task list: prf + floc + tone; floc_run1 aborted after 5 volumes and restarted"
+description = "Custom task list: prf + floc (no tone — truncated, excluded); floc_run1 aborted after 5 volumes and restarted"
 
 [[exceptions]]
 subject = "sub-05"
@@ -787,14 +814,22 @@ session = "ses-30"
 category = "dcm2bids"
 description = "2 fmap groups; screen glitches during auditory (audio still recorded)"
 
-# === LOCALIZER RUN COUNT DEVIATIONS ===
+# === VOLUME COUNT DEVIATIONS ===
 
 [[exceptions]]
-subject = "sub-05"
-session = "ses-03"
-category = "run_count"
-task = "tone"
-description = "3 tone runs instead of expected 2 (2 runs in ses-03)"
+subject = "*"
+session = "ses-30"
+task = "auditory"
+category = "volume_count"
+description = "ses-30 auditory has 408 volumes instead of 400 (slightly longer version of task)"
+
+# NOTE: sub-03 ses-03 tone (294 volumes) is a truncated scan. This intentionally
+# fails validation as a genuine data quality issue — it is NOT listed as an exception.
+# sub-05 ses-02 tone (279 volumes) was also truncated and has been EXCLUDED from BIDS
+# entirely (removed from conversion config and all derivatives). Sub-05 has 2 good
+# tone runs in ses-03.
+
+# === LOCALIZER RUN COUNT DEVIATIONS ===
 
 # === EVENTS CONVERSION BACKLOG ===
 
@@ -883,6 +918,22 @@ subject = "*"
 session = "ses-18"
 category = "events"
 description = "No TBencoding events/scans (partial session: math + retrieval only)"
+
+[[exceptions]]
+subject = "*"
+session = "ses-18"
+task = "TBencoding"
+category = "run_count"
+description = "No TBencoding scans in ses-18 (partial session: math + retrieval only)"
+
+# === SES-29 NOT YET BIDSIFIED ===
+
+[[exceptions]]
+subject = "*"
+session = "ses-29"
+task = "FINfreerecall"
+category = "behavioral"
+description = "ses-29 behavioral data not yet BIDSified (sourcedata exists)"
 
 # ---------------------------------------------------------------------------
 # Physio collection gaps
