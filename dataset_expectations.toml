@@ -129,14 +129,14 @@ datatype = "func"
 session_type = "localizer"
 runs_per_session = "variable"  # 3-6 runs
 runs_range = [3, 6]
-total_runs_per_subject = "variable"  # depends on subject
+total_runs_per_subject = 6
 expected_volumes = 208
 has_events = true  # not yet converted; timing from .par files
 
 # Known inventory:
 #   sub-03: ses-03 = 6 runs
 #   sub-04: ses-04 = 6 runs (makeup from ses-03 failure)
-#   sub-05: ses-02 = 4 runs, ses-03 = 3 runs
+#   sub-05: ses-02 = 3 runs, ses-03 = 3 runs
 
 # -- Auditory localizer --
 [tasks.auditory]
@@ -187,6 +187,7 @@ task_label = "TBencoding"
 datatype = "func"
 session_type = "cued_recall"
 runs_per_session = 3
+total_runs_per_subject = 42  # 3/session × 14 sessions (ses-18 has no encoding)
 expected_volumes = 210
 has_events = true
 
@@ -206,6 +207,7 @@ datatype = "func"
 session_type = "cued_recall"
 runs_per_session = "variable"  # typically 2-4; ses-04 has 2, ses-18 has 2
 runs_range = [2, 4]
+total_runs_per_subject = 56
 expected_volumes = 150
 has_events = true
 
@@ -223,6 +225,7 @@ task_label = "TBmath"
 datatype = "func"
 session_type = "cued_recall"
 runs_per_session = 1
+total_runs_per_subject = 15  # sub-04 has 13 (ses-04/05 no math; see exceptions)
 expected_volumes = 40
 has_events = true
 
@@ -239,6 +242,7 @@ task_label = "TBresting"
 datatype = "func"
 session_type = "cued_recall"
 runs_per_session = 1
+total_runs_per_subject = 15
 expected_volumes = 200
 has_events = false
 
@@ -249,6 +253,7 @@ task_label = "TB2AFC"
 datatype = "beh"
 session_type = "cued_recall"
 runs_per_session = 1
+total_runs_per_subject = 15
 has_beh_tsv = true
 has_beh_json = true
 
@@ -271,6 +276,7 @@ task_label = "NATencoding"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 2
+total_runs_per_subject = 20
 expected_volumes = "variable"  # movie lengths differ
 expected_volumes_range = [500, 850]
 has_events = true
@@ -290,6 +296,7 @@ task_label = "NATretrieval"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 1  # single run (no run entity in filename)
+total_runs_per_subject = 10  # sub-04 has 12 (ses-20/24 have 2 runs; see exceptions)
 expected_volumes = "variable"  # participant-paced free recall
 expected_volumes_range = [300, 1900]
 has_events = true
@@ -310,6 +317,7 @@ task_label = "NATmath"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 1
+total_runs_per_subject = 10
 expected_volumes = 40
 has_events = true
 
@@ -326,6 +334,7 @@ task_label = "NATresting"
 datatype = "func"
 session_type = "free_recall"
 runs_per_session = 1
+total_runs_per_subject = 10
 expected_volumes = 200
 has_events = false
 
@@ -343,6 +352,7 @@ task_label = "FINfreerecall"
 datatype = "beh"
 session_type = "behavioral"
 runs_per_session = 1
+total_runs_per_subject = 1
 has_beh_tsv = true
 has_beh_json = true
 has_audio = true  # verbal recall recordings in sourcedata/sub-XX/ses-29/audio/
@@ -368,6 +378,7 @@ task_label = "FINretrieval"
 datatype = "func"
 session_type = "final"
 runs_per_session = 4
+total_runs_per_subject = 4
 expected_volumes = 210
 has_events = true
 
@@ -380,22 +391,26 @@ event_columns = [
     "enSession", "enRun", "enTrial", "trial_accuracy", "trial_id",
 ]
 
-# -- FIN Timeline --
+# -- FIN Timeline (behavioral only, in beh/ not func/) --
 [tasks.FINtimeline]
 task_label = "FINtimeline"
-datatype = "func"
+datatype = "beh"
 session_type = "final"
-runs_per_session = 2
-has_events = true
+runs_per_session = 1
+total_runs_per_subject = 1
+has_beh_tsv = true
+has_beh_json = true
 
 
-# -- FIN 2AFC --
+# -- FIN 2AFC (behavioral only, in beh/ not func/) --
 [tasks.FIN2AFC]
 task_label = "FIN2AFC"
-datatype = "func"
+datatype = "beh"
 session_type = "final"
-runs_per_session = 2
-has_events = true
+runs_per_session = 1
+total_runs_per_subject = 1
+has_beh_tsv = true
+has_beh_json = true
 
 
 # -- Motor localizer --
@@ -404,6 +419,7 @@ task_label = "motor"
 datatype = "func"
 session_type = "final"
 runs_per_session = 2
+total_runs_per_subject = 2
 expected_volumes = 400
 has_events = true
 
@@ -418,6 +434,7 @@ task_label = "fixation"
 datatype = "func"
 session_type = "final"
 runs_per_session = 1
+total_runs_per_subject = 1
 expected_volumes = 50
 has_events = true  # not yet converted; gaze position events for PEER/DeepMReye calibration
 
@@ -427,6 +444,7 @@ task_label = "FINresting"
 datatype = "func"
 session_type = "final"
 runs_per_session = 1
+total_runs_per_subject = 1
 expected_volumes = 280
 has_events = false
 
@@ -830,6 +848,16 @@ description = "ses-30 auditory has 408 volumes instead of 400 (slightly longer v
 # tone runs in ses-03.
 
 # === LOCALIZER RUN COUNT DEVIATIONS ===
+
+# === TOTAL RUN COUNT DEVIATIONS ===
+# NOTE: sub-04 has 13 TBmath runs (missing ses-04/05) — genuinely missing data,
+# intentionally fails total_runs validation.
+
+[[exceptions]]
+subject = "sub-04"
+task = "NATretrieval"
+category = "run_count"
+description = "12 total NATretrieval runs instead of 10 (ses-20/24 each have 2 runs due to restarts)"
 
 # === EVENTS CONVERSION BACKLOG ===
 
