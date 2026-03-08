@@ -482,11 +482,16 @@ voxel_size = [1.798, 1.798, 2.0]
 [physio]
 recording_types = ["cardiac", "pulse", "respiratory"]
 sampling_rate = 1000  # Hz
+# Ideally collected for all functional sessions except ses-01 (baseline anat +
+# single resting run, physio setup not yet established).
+exclude_sessions = ["ses-01"]
 
 [physio.eyetracking]
 recording_type = "eye"
 columns = ["eye1_x_coordinate", "eye1_y_coordinate", "eye1_pupil_size"]
 sampling_rate = 1000
+# Ideally collected for all functional sessions except ses-01.
+exclude_sessions = ["ses-01"]
 
 # ---------------------------------------------------------------------------
 # Derivatives expectations
@@ -664,6 +669,7 @@ description = "Encoding run 2 restarted; extra DICOM series"
 subject = "sub-04"
 session = "ses-16"
 category = "physio"
+data_missing = true
 description = "No respiratory data (battery dead); pulse oximetry still recorded"
 
 [[exceptions]]
@@ -700,6 +706,7 @@ description = "3 .EDF.tmp files (incomplete eye tracking recordings); skipped"
 subject = "sub-04"
 session = "ses-25"
 category = "eyetracking"
+data_missing = true
 description = "eyetracking_used=true in sessions.tsv but no BIDS eye files on disk"
 
 [[exceptions]]
@@ -806,6 +813,7 @@ description = "Forgot to switch persaio and add mic adaptor; audio may be affect
 subject = "sub-05"
 session = "ses-23"
 category = "physio"
+data_missing = true
 description = "Respiration not working this session"
 
 [[exceptions]]
@@ -965,14 +973,27 @@ description = "ses-29 behavioral data not yet BIDSified (sourcedata exists)"
 
 # ---------------------------------------------------------------------------
 # Physio collection gaps
-# Many sessions where physio_used=true have no usable BIDS physio files.
-# Raw files were technically collected but are empty due to equipment issues
-# during acquisition. This is a data-loss issue, not a conversion backlog.
+# Physio was not collected during localizer sessions (ses-02, ses-03) or
+# ses-30.  For other sessions, collection was attempted but ~50% of the time
+# produced empty files due to equipment issues during acquisition.
 # ---------------------------------------------------------------------------
 [[exceptions]]
 subject = "*"
 session = "*"
 category = "physio_collection"
-description = """Approximately 50% of sessions where physio_used=true have no \
-usable physio data. Raw files were collected but are empty due to equipment \
+data_missing = true
+description = """Physio not collected or empty raw files due to equipment \
 issues during acquisition."""
+
+# ---------------------------------------------------------------------------
+# Eyetracking collection gaps
+# Eyetracking was only consistently collected during naturalistic/free recall
+# sessions (ses-19 to ses-28).  Earlier sessions (localizers, cued recall)
+# and ses-30 did not use eyetracking.
+# ---------------------------------------------------------------------------
+[[exceptions]]
+subject = "*"
+session = "*"
+category = "eyetracking"
+data_missing = true
+description = """Eyetracking not collected for this session."""
