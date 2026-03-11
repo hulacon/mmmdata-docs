@@ -9,14 +9,14 @@ nav_order: 4
 
 ## Overview
 
-A two-layer pipeline that takes fMRIPrep + NORDIC outputs and produces
-analysis-ready data for three distinct consumer types, all sharing a single
-quality-control substrate.
+A two-layer pipeline that takes fMRIPrep + NORDIC (?) outputs and produces
+analysis-ready data for three distinct analysis types, all sharing a single
+quality-control layer.
 
 ```
 Layer 1 — Shared base (fMRIPrep outputs + human QC decisions)
     ↓
-Layer 2 — Stream-specific cleaning (deterministic from layer 1)
+Layer 2 — Stream-specific cleaning (applied on output from layer 1)
     ├── ready/glmsingle/      ← TB sessions + block-design localizers
     ├── ready/naturalistic/   ← NAT sessions + pRF localizer
     └── ready/connectivity/   ← resting-state sessions
@@ -29,8 +29,9 @@ Layer 2 — Stream-specific cleaning (deterministic from layer 1)
 - The BOLD timeseries is **never modified** for the GLMSingle stream — only a
   curated confounds file and TR exclusion flags are produced. GLMSingle handles
   its own noise modeling internally.
-- Bandpass filtering is **stream-specific**: required for connectivity, harmful
-  for GLMSingle betas, unnecessary for naturalistic ISFC/ISC and pRF.
+- Bandpass filtering is **stream-specific**: required for connectivity ([Cordes et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11498421/)), harmful
+  for GLMSingle betas ([Prince et al., 2022](https://doi.org/10.7554/eLife.77599)),
+  unnecessary for naturalistic ISFC/ISC and pRF.
 - Localizer runs route to streams by analysis type, not by session type.
 - **Dual output space:** streams B and C produce both `MNI152NLin2009cAsym
   res-2` (volumetric NIfTI) and `fsaverage6` (surface gifti) for every run.
