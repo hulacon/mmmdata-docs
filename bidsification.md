@@ -81,7 +81,7 @@ source file to a BIDS destination and conversion type. Regenerate with:
 
 ```bash
 cd /gpfs/projects/hulacon/shared/mmmdata/code/mmmdata/raw2bids_converters
-/home/bhutch/.local/envs/viz2psy/bin/python3 generate_inventory.py
+/projects/hulacon/shared/envs/stimfeat/bin/python3 generate_inventory.py
 ```
 
 This walks `sourcedata/sub-*/ses-*/` and classifies files by regex. It also
@@ -90,8 +90,13 @@ PhysioLog files are convertible.
 
 ### How to Run
 
-**Prerequisites:** The viz2psy venv (`/home/bhutch/.local/envs/viz2psy`) provides
-`eyelinkio`, `pandas`, and other dependencies required by the full converter suite.
+**Prerequisites:** The shared stimfeat conda env
+(`/projects/hulacon/shared/envs/stimfeat`, built by psytwill's
+`scripts/setup_env.sh`) provides `eyelinkio`, `pandas`, and the other
+dependencies required by the full converter suite. When calling its
+`bin/python3` directly (outside `conda activate`), export
+`PYTHONNOUSERSITE=1` first — `~/.local` site-packages otherwise shadow the
+env's own.
 
 ```bash
 # From the mmmdata repo (code/mmmdata/)
@@ -385,4 +390,4 @@ system (for imaging DICOMs).
 | Pipeline scripts | `code/mmmdata/scripts/` |
 | Agent code | `code/mmmdata-agents/` |
 | Validation reference | `derivatives/bids_validation/eventfiles/` |
-| viz2psy venv | `/home/bhutch/.local/envs/viz2psy` |
+| stimfeat conda env | `/projects/hulacon/shared/envs/stimfeat` |
