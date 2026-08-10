@@ -37,7 +37,6 @@ nav_order: 1
 ├── sub-04/
 ├── sub-05/
 ├── derivatives/
-├── sourcedata/
 ├── inventory/
 ├── code/
 ├── phenotype/                    # Questionnaire & debriefing data (VVIQ, final debriefing)

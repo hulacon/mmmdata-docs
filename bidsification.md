@@ -378,7 +378,7 @@ system (for imaging DICOMs).
 | Resource | Path |
 |----------|------|
 | BIDS root | `/gpfs/projects/hulacon/shared/mmmdata/` |
-| Sourcedata | `sourcedata/sub-XX/ses-YY/` |
+| Sourcedata | `/gpfs/projects/hulacon/shared/mmmsourcedata/sub-XX/ses-YY/` |
 | Behavioral converters | `code/mmmdata/raw2bids_converters/` |
 | dcm2bids config system | `code/mmmdata/src/python/dcm2bids_config/` |
 | dcm2bids generated configs | `code/dcm2bids_configfiles/sub-XX/` |

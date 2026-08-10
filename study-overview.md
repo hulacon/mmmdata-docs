@@ -23,11 +23,12 @@ discrete series of trials) relates to doing so in more naturalistic settings
 
 | Subject | Age | Sex | Handedness | Vision | Status |
 |---------|-----|-----|------------|--------|--------|
-| sub-01, sub-02 | — | — | — | — | Pilot. DICOMs in `sourcedata/dicoms/` only. Not BIDSified. |
+| sub-01, sub-02 | — | — | — | — | Pilot. DICOMs in `mmmsourcedata/archive/pilot/` only. Not BIDSified. |
 | sub-03 | 20 | M | right | normal | Active. Fully BIDSified (ses-01–28, ses-30). |
 | sub-04 | 28 | M | right | normal | Active. Fully BIDSified (ses-01–28, ses-30). |
 | sub-05 | 22 | F | right | corrected | Active. Fully BIDSified (ses-01–28, ses-30). |
-| sub-06 through sub-09 | — | — | — | — | Planned. Will follow the same session schedule. |
+| sub-06, sub-07, sub-08 | — | — | — | — | Data collection in progress (source data in `mmmsourcedata/`). Not yet BIDSified. |
+| sub-09 | — | — | — | — | Planned. Will follow the same session schedule. |
 
 Full demographics (including education, race, sleep, medication history) are
 recorded in `participants.tsv`. Questionnaire data (VVIQ, final debriefing)

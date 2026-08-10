@@ -11,7 +11,9 @@ MMMData follows the [Brain Imaging Data Structure (BIDS) v1.9.0](https://bids-sp
 standard. Data are organized into three tiers:
 
 - **BIDS raw**: Converted NIfTI + JSON + events TSV files
-- **Source data**: Original DICOMs, PsychoPy output, audio recordings
+- **Source data**: Original DICOMs, PsychoPy output, audio recordings — stored
+  outside the BIDS tree at `/gpfs/projects/hulacon/shared/mmmsourcedata/` so
+  the BIDS dataset can be shared without exposing PII (see sourcedata.md)
 - **Derivatives**: Preprocessed outputs (fMRIPrep, MRIQC)
 
 ## Per-Session Scan Inventories (`scans.tsv`)
