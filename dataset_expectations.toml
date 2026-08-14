@@ -1,3 +1,15 @@
+# DEPRECATED 2026-08-14 — superseded by the dataset-owned declaration at
+# <bids_root>/expectations/dataset.toml, ingested into inventory/catalog.duckdb
+# by mmmdata/scripts/catalog_expectations.py (query the `resolution` view).
+# Expectations are catalog data, not documentation; this copy is frozen and
+# its numbers predate 2026-04. It remains ONLY because the legacy validation
+# engine (mmmdata src/python/validation/) and mmmdata-agents
+# src/tools/manifest_tools.py still parse it at runtime; delete it when those
+# consumers are ported to the catalog. Do not update it.
+#
+# Decision trail: mmmdata-agents docs/workbench/contract-a-catalog/log.md
+# (2026-08-14) and docs/constellation-contracts.md §3.
+
 # MMMData Dataset Expectations Schema
 # Defines what the dataset *should* contain — used by validation engine (Phase 4)
 # to compare expectations against reality (manifest).
