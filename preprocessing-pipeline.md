@@ -7,87 +7,156 @@ nav_order: 4
 
 # Analysis-Ready Preprocessing Pipeline
 
+> **Status — DESIGN. Layer 2 does not exist.**
+> This page is a *design document*, not a description of data you can load.
+> As of **2026-08-20**, `derivatives/ready/` has never been created: none of
+> the three streams below has been implemented, and no stream cleaner has run
+> on any subject. Layer 1 exists only in part (see
+> [Layer 1](#layer-1-shared-base) for exactly what is on disk).
+>
+> Do not write analysis code against the `ready/` paths on this page. To use
+> preprocessed BOLD today, read `derivatives/fmriprep/` or
+> `derivatives/fmriprep_nordic/` directly — see
+> [Derivatives & Preprocessing](derivatives.md) and
+> [Output Spaces](preprocessing-spaces.md).
+
+Status legend used below:
+
+| Label | Meaning |
+|---|---|
+| **BUILT** | Exists on disk and has been produced for the subjects named |
+| **PARTIAL** | Some of it exists; the section says which part |
+| **PLANNED** | Design only. No code has run, no files exist |
+
+---
+
 ## Overview
 
-A two-layer pipeline that takes fMRIPrep + NORDIC (?) outputs and produces
-analysis-ready data for three distinct analysis types, all sharing a single
-quality-control layer.
+The intended design is a two-layer pipeline taking fMRIPrep (optionally
+NORDIC-denoised) output and producing analysis-ready data for three analysis
+types, all sharing a single quality-control layer.
 
 ```
-Layer 1 — Shared base (fMRIPrep outputs + human QC decisions)
+Layer 1 — Shared base (fMRIPrep outputs + QC decisions)   [PARTIAL]
     ↓
-Layer 2 — Stream-specific cleaning (applied on output from layer 1)
+Layer 2 — Stream-specific cleaning                         [PLANNED — nothing built]
     ├── ready/glmsingle/      ← TB sessions + block-design localizers
     ├── ready/naturalistic/   ← NAT sessions + pRF localizer
     └── ready/connectivity/   ← resting-state sessions
 ```
 
-**Key design principles:**
-- QC decisions (run exclusions, bad TRs, NORDIC choice) are made **once** at
-  layer 1 and propagated to all streams. Comparisons across analysis types are
-  valid because the QC substrate is identical.
-- The BOLD timeseries is **never modified** for the GLMSingle stream — only a
-  curated confounds file and TR exclusion flags are produced. GLMSingle handles
-  its own noise modeling internally.
-- Bandpass filtering is **stream-specific**: required for connectivity ([Cordes et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11498421/)), harmful
+**Design principles** (these are the rationale for the design; they are not
+claims about existing data):
+
+- QC decisions (run exclusions, bad TRs, NORDIC choice) are to be made **once**
+  at layer 1 and propagated to all streams, so that comparisons across analysis
+  types rest on an identical QC substrate.
+- The BOLD timeseries would **never be modified** for the GLMSingle stream —
+  only a curated confounds file and TR exclusion flags. GLMSingle handles its
+  own noise modeling internally.
+- Bandpass filtering is **stream-specific**: required for connectivity
+  ([Cordes et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11498421/)), harmful
   for GLMSingle betas ([Prince et al., 2022](https://doi.org/10.7554/eLife.77599)),
   unnecessary for naturalistic ISFC/ISC and pRF.
 - Localizer runs route to streams by analysis type, not by session type.
-- **Dual output space:** streams B and C produce both `MNI152NLin2009cAsym
-  res-2` (volumetric NIfTI) and `fsaverage6` (surface gifti) for every run.
+- **Dual output space:** streams B and C would produce both
+  `MNI152NLin2009cAsym res-2` (volumetric NIfTI) and `fsaverage6` (surface
+  GIFTI) for every run.
 
 ---
 
 ## Layer 1: Shared Base
 
-For each subject/session/run, layer 1 is the fMRIPrep output (original or
-NORDIC-denoised) plus a **QC decisions file** recording all human-review
-outcomes.
+**Status: PARTIAL.** The fMRIPrep half is BUILT. The QC-decision half exists as
+auto-generated stubs only, in a schema different from the one this page
+originally described, and **no human review has been recorded for any run**.
 
-**NORDIC:** a per-run flag in the QC decisions file controls whether the
-NORDIC-denoised or original fMRIPrep BOLD is used as the source. Once NORDIC
-is validated and deployed, the default will be `true` for TB and resting
-sessions; NAT sessions are evaluated separately.
+### What is on disk
 
-### QC decisions
+`derivatives/preprocessing_qc/sub-XX/` holds **one JSON per BOLD run** —
+203 runs each for sub-03, sub-04 and sub-05 (609 total), written 2026-04 by
+`mmmdata/scripts/generate_qc_stubs.py` from `fmriprep_nordic` confounds.
 
-One TSV per subject/session at
-`derivatives/preprocessing_qc/sub-XX/sub-XX_ses-YY_qc_decisions.tsv`:
+Every one of those 609 records is an **auto-generated stub**
+(`"reviewer": "auto-stub"`). None reflects a human judgement. Treat the
+dataset as **not yet QC-reviewed**.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `task` | str | BIDS task label |
-| `run` | str | run index or `n/a` |
-| `exclude` | bool | Exclude run entirely from all streams |
-| `exclude_reason` | str | Free text reason |
-| `nordic` | bool | Use NORDIC-denoised BOLD as source |
-| `fd_threshold` | float | FD cutoff for TR flagging (default 0.5 mm) |
-| `n_outlier_trs` | int | Number of TRs flagged |
-| `outlier_trs` | str | Comma-separated 0-indexed TR indices |
-| `notes` | str | Reviewer notes |
+The record format is an append-only decision history per run:
 
-Stubs are auto-generated from fMRIPrep framewise displacement data (FD stats
-computed, TRs flagged at default threshold, all runs included by default).
-A human reviewer then opens the TSV alongside the fMRIPrep HTML report and
-MRIQC outputs and edits as needed. The file is version-controlled as a record
-of all QC decisions.
+```json
+{
+  "run_key": "sub-03_ses-02_task-prf_run-01_bold",
+  "decisions": [
+    {
+      "decision": "keep",
+      "reason": "auto-stub from fmriprep_nordic confounds; mean_fd=0.064mm; ...",
+      "reviewer": "auto-stub",
+      "timestamp": "2026-04-16T16:37:08.948001+00:00"
+    }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `run_key` | `sub-XX_ses-YY_task-ZZZ[_run-NN]_bold` |
+| `decisions[]` | Append-only history; the **last** entry is current |
+| `decision` | `keep`, `exclude`, `investigate`, or `pending` |
+| `reason` | Free text; for stubs, the FD statistics behind the suggestion |
+| `reviewer` | Person's identifier, or an automated-writer name |
+| `automated` | `true` when written by tooling rather than a person |
+| `recommendation` | Automated writers' advisory suggestion. Never gates anything |
+| `timestamp` | UTC ISO-8601 |
+
+Written and read by `save_decision` / `load_decisions` in
+`mmmdata/src/python/neuroimaging/qc_dashboard.py`, and by the interactive QC
+dashboard. Automated writers may only record `pending`, carrying any suggestion
+in `recommendation` — so a record can never read as a human sign-off when it
+is not one. The 2026-04 stubs on disk predate that rule and record `keep`
+directly; they are still auto-generated and are not sign-offs.
+
+**Location note:** new decisions are written to
+`derivatives/duckbrain/qc/decisions/` (flat, shared with duckbrain).
+`derivatives/preprocessing_qc/` and `derivatives/qc_review/decisions/` are
+legacy read-only locations; `load_decisions` searches all three, newest last.
+
+### What is not built
+
+The fields this page previously specified — `fd_threshold`, `n_outlier_trs`,
+`outlier_trs`, and a per-run `nordic` source flag — **do not exist** in any
+record. Per-TR outlier flagging is part of the layer-2 design and has not been
+implemented. Framewise displacement is available per run from the fMRIPrep
+confounds TSVs in the meantime.
+
+**NORDIC:** the design called for a per-run flag selecting the NORDIC or
+original source. No such flag exists. Both `fmriprep/` and `fmriprep_nordic/`
+are complete for all three subjects, so consumers currently choose a tree by
+path. As of 2026-08, new analyses default to the **non-NORDIC** `fmriprep/`
+tree.
 
 ---
 
 ## Layer 2: Analysis Streams
 
-### Stream A — GLMSingle (`ready/glmsingle/`)
+> **Status: PLANNED — none of the following exists.** `derivatives/ready/` has
+> not been created. No file described in this section is on disk for any
+> subject. The stream cleaners have not been written.
+
+The design below is retained as the specification the streams would be built
+to.
+
+### Stream A — GLMSingle (`ready/glmsingle/`) — PLANNED
 
 **Sessions:** TB (TBencoding, TBretrieval, TBmath, TBresting) + block-design
 localizers (fLoc, motor, auditory, tone)
 
-**What it produces per run:**
+**Would produce per run:**
 - `*_desc-confounds_ready.tsv` — curated confounds with one spike regressor
   per outlier TR
 - `*_desc-outliers_mask.tsv` — boolean mask of bad TRs
 
-**What it does NOT do:** modify the BOLD NIfTI. The source BOLD (fMRIPrep or
-NORDIC fMRIPrep) is read directly by GLMSingle or the localizer GLM.
+**Would NOT do:** modify the BOLD NIfTI. The source BOLD (fMRIPrep or NORDIC
+fMRIPrep) would be read directly by GLMSingle or the localizer GLM.
 
 **Confound strategy (36-parameter + spikes):**
 - 24 motion parameters (Friston 24: 6 realignment params + derivatives +
@@ -102,27 +171,27 @@ breaking the temporal structure of the design matrix.
 
 ---
 
-### Localizer runs — stream assignment
+### Localizer runs — stream assignment — PLANNED
 
-Localizer sessions (ses-02, ses-03, ses-30) split across streams by analysis
-type:
+Localizer sessions (ses-02, ses-03, ses-30) would split across streams by
+analysis type:
 
 - **Block-design GLMs** (fLoc, motor, auditory, tone) → **GLMSingle stream**.
   Same recipe: BOLD untouched, curated confounds + TR flags passed to the
   analysis tool.
 - **pRF / travelling wave** (prf task) → **Naturalistic stream**. prfpy
   expects confounds regressed, high-pass filtered, no bandpass, no smoothing,
-  surface space preferred. The naturalistic stream's default dual-space output
-  satisfies all of these with no special handling.
+  surface space preferred. The naturalistic stream's dual-space output would
+  satisfy all of these with no special handling.
 
 ---
 
-### Stream B — Naturalistic (`ready/naturalistic/`)
+### Stream B — Naturalistic (`ready/naturalistic/`) — PLANNED
 
 **Sessions:** NAT (movie-viewing, free recall, cued recall) + pRF localizer
 **Analyses:** pattern similarity (RSA), ISFC, ISC, pRF model fitting
 
-**What it produces per run (both spaces):**
+**Would produce per run (both spaces):**
 - `*_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz`
 - `*_hemi-L_space-fsaverage6_desc-preproc_bold.func.gii`
 - `*_hemi-R_space-fsaverage6_desc-preproc_bold.func.gii`
@@ -143,12 +212,12 @@ for naturalistic paradigms.
 
 ---
 
-### Stream C — Connectivity (`ready/connectivity/`)
+### Stream C — Connectivity (`ready/connectivity/`) — PLANNED
 
 **Sessions:** TBresting (and any dedicated resting runs added in future)
 **Analyses:** seed-based FC, ICA, graph metrics
 
-**What it produces per run (both spaces):**
+**Would produce per run (both spaces):**
 - `*_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz`
 - `*_hemi-L_space-fsaverage6_desc-preproc_bold.func.gii`
 - `*_hemi-R_space-fsaverage6_desc-preproc_bold.func.gii`
@@ -163,21 +232,24 @@ for naturalistic paradigms.
 5. Scrub interpolated TRs from output (flagged in outliers mask)
 6. Spatial smoothing: 4mm FWHM (volumetric for MNI; geodesic for fsaverage6)
 
-**Global signal regression (GSR):** not applied by default due to introduced
-anticorrelations. Deferred to when FC analyses begin.
+**Global signal regression (GSR):** not in the default design, due to
+introduced anticorrelations. Deferred to when FC analyses begin.
 
 ---
 
-## Filesystem layout
+## Filesystem layout — planned
+
+> Everything under `ready/` in this tree is **PLANNED**. Only `fmriprep/`,
+> `fmriprep_nordic/` and `preprocessing_qc/` exist today.
 
 ```
 derivatives/
-├── fmriprep/                     # Original fMRIPrep outputs (unchanged)
-├── fmriprep_nordic/              # NORDIC fMRIPrep outputs (unchanged)
-├── preprocessing_qc/
+├── fmriprep/                     # BUILT — original fMRIPrep outputs
+├── fmriprep_nordic/              # BUILT — NORDIC fMRIPrep outputs
+├── preprocessing_qc/             # PARTIAL — auto-stubs only, no human review
 │   └── sub-XX/
-│       └── sub-XX_ses-YY_qc_decisions.tsv
-└── ready/
+│       └── sub-XX_ses-YY_task-ZZZ[_run-NN]_bold_decision.json
+└── ready/                        # PLANNED — does not exist
     ├── glmsingle/
     │   └── sub-XX/ses-YY/func/
     │       ├── *_desc-confounds_ready.tsv
@@ -197,19 +269,23 @@ derivatives/
             └── *_desc-outliers_mask.tsv
 ```
 
-Brain masks are not duplicated — consumers read them from `fmriprep/` or
+Brain masks would not be duplicated — consumers read them from `fmriprep/` or
 `fmriprep_nordic/` directly (same space, same subject).
 
 ---
 
 ## Confound strategy reference
 
+Applies to the planned streams. The confound *columns* themselves are real —
+they come from the existing fMRIPrep `*_desc-confounds_timeseries.tsv` files
+and can be used directly today.
+
 | Component | Columns | Notes |
 |-----------|---------|-------|
 | Motion (Friston 24) | `trans_x/y/z`, `rot_x/y/z` + derivatives + quadratics | 24 total |
 | Anatomical CompCor | `a_comp_cor_00`–`a_comp_cor_05` | Combined WM+CSF mask |
 | Cosine drift | all `cosine*` columns | Handles drift without bandpass (GLMSingle stream) |
-| Spike regressors | Generated per outlier TR | GLMSingle stream only |
+| Spike regressors | Would be generated per outlier TR | GLMSingle stream only; not yet generated |
 
 Not included by default: global signal (anticorrelations), mean WM/CSF signals
 (superseded by aCompCor), temporal CompCor.
@@ -218,14 +294,24 @@ Not included by default: global signal (anticorrelations), mean WM/CSF signals
 
 ## Open questions
 
-1. **NORDIC for NAT sessions:** The NORDIC pilot covered a TB session. A NAT
-   session pilot (longer timeseries, ~600+ TRs, movie-viewing) should be run
-   before committing the NORDIC default for those sessions.
+1. **Whether to build layer 2 at all in this form.** The streams have been
+   parked since the design was written; ad-hoc analyses (GLMSingle, pattern
+   similarity, ISC, SRM) have instead read `fmriprep*/` directly. Any revival
+   should confirm the three-stream split still matches how the data are
+   actually being used.
 
-2. **T1w (native) space output:** Desirable for analyses requiring native
-   resolution (HippUnfold, sub-millimetre ROI work). Deferred on disk space
-   grounds — T1w BOLD is 2–4× larger per run than MNI res-2. fsaverage6 is
-   comparatively cheap (~10% of volume size) and is included by default.
+2. **NORDIC for NAT sessions.** Both fMRIPrep variants are complete for all
+   three subjects and have been benchmarked. As of 2026-08, new analyses
+   default to the non-NORDIC tree; a decision to retire the NORDIC arm
+   entirely has not been recorded.
 
-3. **Global signal regression for connectivity:** Deferred to when resting-state
-   FC analyses begin; will be implemented as an opt-in variant.
+3. **T1w (native) space output.** Desirable for analyses requiring native
+   resolution (HippUnfold, sub-millimetre ROI work). Deferred on disk-space
+   grounds — T1w BOLD is 2–4× larger per run than MNI res-2.
+
+4. **Global signal regression for connectivity.** Deferred to when
+   resting-state FC analyses begin; would be an opt-in variant.
+
+---
+
+*Dataset claims on this page verified against the filesystem on 2026-08-20.*

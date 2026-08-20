@@ -7,9 +7,12 @@ nav_order: 2
 
 # Experimental Design
 
-Tasks fall into four categories, organized across a 30-session schedule. Task
-labels in BIDS filenames are being updated to reflect the TB/NAT distinction
-(e.g., `task-encoding` will become `task-TBencoding` or `task-NATencoding`).
+Tasks fall into four categories, organized across a 30-session schedule. BIDS
+task labels carry a phase prefix — `INIT*` (baseline), `TB*` (trial-based),
+`NAT*` (naturalistic), `FIN*` (final session) — with the localizer tasks
+(`prf`, `floc`, `tone`, `auditory`, `motor`, `fixation`) unprefixed. This
+relabeling is complete: no unprefixed `task-encoding` / `task-retrieval` /
+`task-math` / `task-resting` files exist.
 
 | Phase | Sessions | Paradigm |
 |-------|----------|----------|

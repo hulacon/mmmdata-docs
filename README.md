@@ -39,7 +39,9 @@ Overview
 │   ├── data-organization.md       # BIDS overview
 │   ├── file-organization.md       # BIDS directory tree & naming conventions
 │   ├── sourcedata.md              # Source data structure
-│   ├── derivatives.md             # Preprocessing pipelines & derivatives
+│   ├── derivatives.md             # Derivative trees & what each contains
+│   ├── preprocessing-pipeline.md  # Analysis-ready streams — DESIGN, not built
+│   ├── preprocessing-spaces.md    # Output spaces & preprocessing steps
 │   └── bidsification.md           # BIDSification pipeline & conversion details
 │
 ├── compliance-status.md           # BIDS compliance checklists
@@ -49,17 +51,42 @@ Overview
 
 ## Contributing
 
-Edit files here, commit, and push. Then update the submodule pointer in each consumer repo:
+Edit files here, commit, and push to GitHub. **That is the whole workflow** —
+a GitHub Action (`.github/workflows/notify-consumers.yml`) fires on every push
+to `main` and bumps the submodule pointer in both consumer repos
+automatically. Wait a minute or two, then `git pull` in the consumer.
 
-```bash
-# In mmmdata
-cd docs/doc/shared && git pull origin main && cd ../../..
-git add docs/doc/shared && git commit -m "Update shared docs"
+Two rules that matter:
 
-# In mmmdata-agents
-cd docs/shared && git pull origin main && cd ../..
-git add docs/shared && git commit -m "Update shared docs"
-```
+- **Never commit a submodule bump by hand.** The Action owns those commits;
+  a manual bump races it.
+- **Never push from a submodule checkout** (`docs/shared/` or
+  `docs/doc/shared/`). Commit in this clone and push from here.
+
+## Documenting status
+
+The dataset and its pipelines are under active development, and several pages
+describe designs that are not built. Distinguish them explicitly — a
+collaborator reading a present-tense description will assume the files exist.
+
+| Label | Meaning |
+|---|---|
+| **BUILT** | Exists on disk, for the subjects/sessions named |
+| **PARTIAL** | Some of it exists; say which part |
+| **PLANNED** / **DESIGN** | No code has run and no files exist |
+
+Conventions to follow when editing:
+
+- Put a status callout (`> **Status — …**`) at the top of any page whose
+  subject is wholly or partly unbuilt, and mark individual sections too.
+- Write planned behaviour in the conditional ("would produce"), not the
+  present tense ("produces").
+- End a page whose claims you checked with
+  `*Verified against the filesystem on YYYY-MM-DD.*`
+- **Do not quote counts that go stale** — subject counts, session counts,
+  per-pipeline completeness. Point at the catalog
+  (`inventory/catalog.duckdb`) instead. Durable structural facts (how many
+  movie stimuli exist, what the task labels are) are fine.
 
 ## Front matter
 

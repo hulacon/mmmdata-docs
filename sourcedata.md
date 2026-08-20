@@ -16,6 +16,8 @@ recruitment materials) stays in `mmmsourcedata/`. Doc references to
 
 ```
 mmmsourcedata/
+├── sessions.json     # Sidecar for the per-subject sub-XX_sessions.tsv exception registry
+├── derivatives/      # Source-side working outputs (e.g. audio transcription)
 ├── archive/          # Archived materials (notes, pilot data, recruitment, legacy staging)
 │   ├── notes/
 │   ├── pilot/            # Pilot subjects (sub-01, sub-02): DICOMs only, not BIDSified
@@ -47,3 +49,7 @@ mmmsourcedata/
   All active source files now live in the per-subject structure.
 - `shared/conversion/` contains the file inventory (`file_inventory.csv`) and
   event file generation scripts used by the automated BIDS conversion pipeline.
+
+---
+
+*Layout verified against the filesystem on 2026-08-20.*

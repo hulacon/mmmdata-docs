@@ -7,7 +7,16 @@ nav_order: 5
 
 # Output Spaces & Preprocessing Steps
 
-fMRIPrep produces preprocessed BOLD data in three output spaces. Each
+> **Two of the three spaces below exist.** As of **2026-08-20**,
+> `MNI152NLin2009cAsym res-2` and `fsaverage6` are present for every
+> preprocessed run in **both** `fmriprep/` and `fmriprep_nordic/`.
+> The **`func` (native acquisition grid) space has not been produced** —
+> there are zero such files in either tree. It is described here because the
+> post-hoc script that would generate it exists and the design decisions
+> behind it (notably the STC choice) are settled; it has simply never been
+> run. See [`func` — native acquisition grid](#func--native-acquisition-grid).
+
+This page describes three output spaces. Each
 space applies a different chain of spatial transforms, but all share the
 same upstream steps (NORDIC denoising, slice timing correction, head
 motion estimation, fieldmap estimation, coregistration estimation). The
@@ -21,7 +30,7 @@ spaces:
 
 | Step | Tool | Description |
 |------|------|-------------|
-| NORDIC denoising | MATLAB `nordic_denoise.m` | Thermal noise suppression on complex-valued data, applied before fMRIPrep. Produces a denoised BOLD NIfTI in `derivatives/nordic/bids_input/`. |
+| NORDIC denoising | MATLAB `nordic_denoise.m` | Thermal noise suppression on complex-valued data, applied before fMRIPrep. Produces a denoised BOLD NIfTI in `derivatives/nordic/bids_input/`. **Applies to the `fmriprep_nordic/` tree only** — `fmriprep/` is preprocessed from the original BOLD. |
 | Slice timing correction | AFNI `3dTshift` | Temporal interpolation to align all slices to the middle of the TR (t = TR/2). See [STC note](#slice-timing-correction) below. |
 | Head motion correction (HMC) | FSL MCFLIRT | Per-volume rigid-body (6 DOF) alignment to a reference volume (boldref). Produces `from-orig_to-boldref_desc-hmc_xfm.txt`. |
 | Susceptibility distortion correction (SDC) | SDCFlows (pepolar) | B0 fieldmap estimated from AP/PA EPI pairs; stored as B-spline coefficients (`desc-coeff_fieldmap.nii.gz`). |
@@ -33,6 +42,12 @@ spaces:
 
 ### `func` — Native acquisition grid
 
+> **Status: NOT PRODUCED.** No `func`-space BOLD exists in `fmriprep/` or
+> `fmriprep_nordic/`. The generator
+> (`mmmdata/scripts/resample_bold_to_func.py`, plus its `.sbatch` wrapper)
+> is written and must run inside the fMRIPrep container, but has not been
+> run on any subject. The table below describes what it would produce.
+
 | Property | Value |
 |----------|-------|
 | Grid | Run's original EPI grid (124 × 124 × 69) |
@@ -43,7 +58,7 @@ spaces:
 | BIDS filename | `{prefix}_desc-preproc_bold.nii.gz` (no `space-` entity) |
 | Primary use | Within-subject voxelwise analyses (GLMsingle), single-trial beta estimation |
 
-The `func` space preserves the native acquisition grid with zero
+The `func` space would preserve the native acquisition grid with zero
 interpolation-induced smoothing beyond the single HMC+SDC resampling
 step. Each run has its own grid — cross-run alignment requires the
 cached coregistration transforms.
@@ -80,9 +95,11 @@ mesh. Subcortical structures are not represented.
 
 ## Summary matrix
 
-| | func | MNI res-2 | fsaverage6 |
+Columns marked *(not produced)* describe intent, not files on disk.
+
+| | func *(not produced)* | MNI res-2 | fsaverage6 |
 |---|:---:|:---:|:---:|
-| NORDIC denoising | ✓ | ✓ | ✓ |
+| NORDIC denoising (`fmriprep_nordic/` only) | ✓ | ✓ | ✓ |
 | Slice timing correction | * | ✓ | ✓ |
 | Head motion correction | ✓ | ✓ | ✓ |
 | Susceptibility distortion correction | ✓ | ✓ | ✓ |
@@ -92,6 +109,7 @@ mesh. Subcortical structures are not represented.
 | Interpolation steps | 1 | 1 | 1 + surface |
 | Cross-run alignment | via cached xfms | intrinsic | intrinsic |
 | Cross-subject alignment | no | yes | yes |
+| **Exists on disk** | **no** | **yes** | **yes** |
 
 \* See [STC note](#slice-timing-correction) below.
 
@@ -117,6 +135,9 @@ post-hoc script.
 with and without STC is planned to validate this decision.
 
 ## Per-run transform files
+
+Paths below use `fmriprep_nordic/` for illustration; `fmriprep/` has the same
+structure and the same transform files.
 
 Each BOLD run in `fmriprep_nordic/{sub}/{ses}/func/` includes cached
 transforms that can be used to move between spaces:
@@ -157,3 +178,14 @@ The fieldmap ID is embedded in both the transform filename
 (`from-boldref_to-B0map{id}_xfm.txt`) and the coefficient filename
 (`fmapid-B0map{id}_desc-coeff_fieldmap.nii.gz`), so the mapping is
 self-documenting.
+
+---
+
+## fMRIPrep version
+
+The outputs described here were produced with **fMRIPrep 24.1.1**. The project
+standard for new runs moved to **25.2.5 LTS** in August 2026 (with an optional
+FreeSurfer 8 external-recon stage); existing derivatives have not been
+reprocessed. Check `dataset_description.json` in the tree you are reading.
+
+*Space inventory on this page verified against the filesystem on 2026-08-20.*

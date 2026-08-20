@@ -11,7 +11,7 @@ Short films (~4 minutes each) shown during naturalistic encoding sessions
 (ses-19 through ses-28). The movie schedule is defined in
 `movies/MMM movies - Sheet1.csv`.
 
-- **Count**: ~40 unique titles across 10 sessions
+- **Count**: 60 unique titles across 10 sessions
 - **Duration**: ~4 minutes each
 - **Styles**: Animated, live-action, and stop-motion; with or without speech
 - **Source**: Mix of short films and clips from longer films (sourced via a
@@ -78,16 +78,26 @@ Hand-annotated event descriptions for each movie, stored as Excel workbooks in
 `{Title}_annotation_master_{initials}.xlsx`, where `{initials}` identifies the
 annotator.
 
-- **Count**: 63 annotation files covering all movie stimuli
+- **Count**: 62 annotation files. Coverage is **not** one-per-movie:
+  `finders-fee` has no annotation file, and three files (Fargo, Migration,
+  Paddington) describe movies never shown in the experiment and are
+  deliberately excluded from the stimulus registry
 - **Format**: XLSX
 - **Location**: `movies/movie_annotations/`
 - **Annotators**: Multiple team members (identified by initials: SL, JL, HK, DP, LH)
 
-## Computational Features (viz2psy)
+## Computational Features
 
 Movie frames and cue images are processed with
 [viz2psy](https://github.com/hulacon/viz2psy), producing per-movie temporal
-feature timeseries in `movies/viz2psy_scores/`.
+feature timeseries.
+
+> **Two layouts.** The legacy all-models output is in
+> `movies/viz2psy_scores/` (described below). The current Contract B layout
+> is `derivatives/stimuli_features/movies/<stimulus-id>/`, on a 0.5 s grid
+> and keyed by `stimulus_id`. Both are on disk; see
+> [Computational Stimulus Features](stimuli_features.md) for which carries
+> what.
 
 For each movie, the output includes:
 - **`{Title}_scores.csv`** — one row per sampled frame, indexed by `time` (seconds),

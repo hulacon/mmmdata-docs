@@ -13,12 +13,18 @@ screen (from NSD shared1000). Image–word pairings are randomly assigned per
 subject. During cued recall, one pairmate is presented and the participant must
 recall the other.
 
-| Current label | Planned label | Description |
-|---------------|---------------|-------------|
-| `task-encoding` | `task-TBencoding` | Paired image + word encoding (2-3 runs per session) |
-| `task-retrieval` | `task-TBretrieval` | Cued recall with one pairmate as cue (1-4 runs per session) |
-| `task-math` | `task-TBmath` | Math distractor task |
-| `task-resting` | `task-TBresting` | Resting state between task blocks |
+| BIDS task label | Description |
+|---|---|
+| `task-TBencoding` | Paired image + word encoding (2–3 runs per session) |
+| `task-TBretrieval` | Cued recall with one pairmate as cue (1–4 runs per session) |
+| `task-TBmath` | Math distractor task |
+| `task-TBresting` | Resting state between task blocks |
+| `task-TB2AFC` | Two-alternative forced-choice recognition (`beh/`, no BOLD) |
+
+These are the labels in the files. The `TB*` prefixes were applied during
+BIDSification — an earlier version of this page listed them as "planned"
+alongside unprefixed `task-encoding` / `task-retrieval` labels, which no
+longer exist anywhere in the dataset.
 
 ## Encoding
 - Task: "How well are you able to associate the word with the image?" Select 1 if it was not at all, 2 for somewhat, and 3 for very well.

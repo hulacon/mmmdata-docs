@@ -33,3 +33,13 @@ discrete series of trials) relates to doing so in more naturalistic settings
 Full demographics (including education, race, sleep, medication history) are
 recorded in `participants.tsv`. Questionnaire data (VVIQ, final debriefing)
 are in `phenotype/`.
+
+> **Session coverage.** The `Status` column above summarises which subjects
+> are BIDSified, not which sessions or derivatives are complete. For any
+> coverage question — which sessions exist, what a pipeline has processed —
+> query the catalog (`inventory/catalog.duckdb`); see
+> [Data Organization](data-organization.md). ses-29 (out-of-scanner
+> behavioral) is not yet BIDS for any subject.
+
+*Participant table verified against `participants.tsv` and the filesystem on
+2026-08-20.*

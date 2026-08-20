@@ -1,3 +1,10 @@
+---
+title: BIDSification Pipelines
+parent: Data Organization
+grand_parent: Dataset Description
+nav_order: 6
+---
+
 # BIDSification Pipelines
 
 Two automated pipelines convert raw sourcedata into BIDS format:
@@ -9,9 +16,15 @@ Both produce files in the same `sub-*/ses-*/` directory tree. Task names must ma
 across pipelines (e.g. the BOLD NIfTI `task-TBencoding` must have a corresponding
 `task-TBencoding_events.tsv`). The pipelines are independent and can run in any order.
 
-**Exception registry:** `sourcedata/sub-XX/sub-XX_sessions.tsv` is the canonical
-source of truth for session-level anomalies. Companion sidecar:
-`sourcedata/sessions.json`.
+**Exception registry:** `mmmsourcedata/sub-XX/sub-XX_sessions.tsv` is the
+canonical source of truth for session-level anomalies. Companion sidecar:
+`mmmsourcedata/sessions.json`.
+
+> **Path note.** Source data lives *outside* the BIDS tree, at
+> `/gpfs/projects/hulacon/shared/mmmsourcedata/`. Bare `sourcedata/` paths on
+> this page are relative to that root, not to the BIDS root — there is no
+> `sourcedata/` directory under the dataset. See
+> [Source Data](sourcedata.md).
 
 ---
 
@@ -106,11 +119,12 @@ sbatch scripts/behavioral_dryrun.sbatch
 # Full conversion
 sbatch scripts/behavioral_convert.sbatch
 
-# Validation against reference data in derivatives/bids_validation/
+# Validation against reference data — see the note under "Validation" below:
+# derivatives/bids_validation/ was deleted in Aug 2026, so this no longer runs
 sbatch scripts/validate_step8.sbatch
 ```
 
-Both sbatch scripts invoke `run_all.py` with the viz2psy Python. The dry-run
+Both sbatch scripts invoke `run_all.py`. The dry-run
 takes ~15 minutes (DICOM parsing for physio); the full conversion takes ~45 minutes
 (EDF processing dominates).
 
@@ -291,6 +305,13 @@ All supplementary scripts live in `code/mmmdata/scripts/`.
 
 ## Validation
 
+> **Historical — the reference data is gone.** The validation steps below ran
+> against `derivatives/bids_validation/`, a 256 GB tree of reference event
+> files and hand-generated configs that was **deleted in August 2026** after
+> review. The results recorded here stand as the record of that validation
+> pass, but the commands can no longer be re-run as written. Re-establishing
+> a reference set would be the first step in re-validating.
+
 ### Behavioral pipeline
 
 `validate_step8.py` (in `code/mmmdata/scripts/`) compares new BIDS output against 532 reference files
@@ -389,5 +410,11 @@ system (for imaging DICOMs).
 | dcm2bids generated configs | `code/dcm2bids_configfiles/sub-XX/` |
 | Pipeline scripts | `code/mmmdata/scripts/` |
 | Agent code | `code/mmmdata-agents/` |
-| Validation reference | `derivatives/bids_validation/eventfiles/` |
+| Validation reference | `derivatives/bids_validation/eventfiles/` — **deleted Aug 2026** |
 | stimfeat conda env | `/projects/hulacon/shared/envs/stimfeat` |
+
+---
+
+*Paths and tree existence on this page verified on 2026-08-20. Conversion
+counts in the tables above date from the original conversion campaign and
+have not been re-derived — query the catalog for current file counts.*

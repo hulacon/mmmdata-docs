@@ -14,7 +14,9 @@ standard. Data are organized into three tiers:
 - **Source data**: Original DICOMs, PsychoPy output, audio recordings — stored
   outside the BIDS tree at `/gpfs/projects/hulacon/shared/mmmsourcedata/` so
   the BIDS dataset can be shared without exposing PII (see sourcedata.md)
-- **Derivatives**: Preprocessed outputs (fMRIPrep, MRIQC)
+- **Derivatives**: Preprocessed outputs and analysis products (fMRIPrep,
+  MRIQC, GLMsingle, hippocampal segmentations, stimulus features, …) — see
+  [Derivatives & Preprocessing](derivatives.md)
 
 ## Per-Session Scan Inventories (`scans.tsv`)
 
@@ -38,45 +40,48 @@ Custom columns are documented in the BIDS-root `scans.json` sidecar (via
 BIDS inheritance). Regenerate with:
 
 ```bash
-.venv/bin/python3 scripts/build_scans_tsv.py
+python scripts/build_scans_tsv.py   # from the mmmdata repo, in the project env
 ```
 
-## Manifest Database
+## Catalog (the way to ask what exists)
 
-A SQLite database at `inventory/manifest.db` aggregates all scans.tsv files,
-sourcedata metadata, derivative file listings, and session metadata into a
-single queryable store. Key tables:
+`inventory/catalog.duckdb` is the queryable index of the dataset — raw BIDS
+files, derivative trees, and QC state — keyed by BIDS entities
+(`subject, session, task, run, suffix, space, res, desc, variant`) plus
+pipeline version. It is the intended answer to "which sessions exist", "what
+has fMRIPrep covered", "is X complete".
 
-| Table | Contents |
-|-------|----------|
-| `files` | Every BIDS file with parsed entities (subject, session, task, run, suffix) |
-| `nifti_meta` | NIfTI header info (dimensions, voxel size, TR) |
-| `events_meta` | Events file stats (row count, columns, onset range) |
-| `physio_meta` | Physio recording info (channel, sampling rate) |
-| `sourcedata` | Raw data inventory (DICOMs, behavioral, audio, eyetracking) |
-| `derivatives` | fMRIPrep and MRIQC output files |
-| `session_metadata` | Per-session info from `_sessions.tsv` (date, notes, physiology) |
-| `validation_results` | Automated check results (pass/fail/warn) |
-
-The manifest is rebuilt on demand and is not version-controlled:
+Rebuild it with the duckbrain catalog engine (~40 s):
 
 ```bash
-.venv/bin/python3 scripts/build_manifest.py          # full rebuild
-.venv/bin/python3 scripts/build_manifest.py --skip-nifti  # fast (skip NIfTI headers)
+python -m duckbrain.catalog rebuild --root /gpfs/projects/hulacon/shared/mmmdata
 ```
 
-## Validation
+**Prefer a catalog query to any count written in these docs.** Numbers in
+prose go stale silently; this page deliberately does not quote subject
+counts, session counts, or per-pipeline completeness.
 
-The dataset expectations schema (`dataset_expectations.toml`) defines what
-*should* exist — expected tasks, run counts, volume counts, event
-structures, and physio/eyetracking coverage. The validation engine compares
-the manifest against these expectations:
+## Expectations & validation
 
-```bash
-.venv/bin/python3 -m validation.run                     # full validation
-.venv/bin/python3 -m validation.run --checks file_presence  # specific check
-.venv/bin/python3 -m validation.run --subjects sub-03       # specific subject
-```
+`expectations/dataset.toml` (in the BIDS root) declares what the dataset
+*should* contain — expected tasks, run counts, volume counts, event
+structures, physio/eyetracking coverage, and roughly 100 documented
+per-subject/session exceptions. It is ingested into the catalog by
+`mmmdata/scripts/catalog_expectations.py`; query the `resolution` view to
+compare declared expectations against what is actually present.
 
-Known deviations (documented as `[[exceptions]]` in the schema) are
-automatically matched and downgraded to informational status.
+> **Superseded.** Two earlier mechanisms are no longer live and should not be
+> used or cited:
+>
+> - **`dataset_expectations.toml`** (in this docs repo) was tombstoned
+>   2026-08-17. Nothing parses it at runtime; its numbers predate 2026-04 and
+>   several are contradicted by a later audit. It is retained only as the
+>   historical record of the acquisition exceptions in their original prose.
+>   Successor: `expectations/dataset.toml`.
+> - **`inventory/manifest.db`** (SQLite) was the previous aggregate store,
+>   last rebuilt in March 2026. It predates most current derivatives and is
+>   not maintained. Successor: `inventory/catalog.duckdb`.
+
+---
+
+*Verified against the filesystem on 2026-08-20.*

@@ -7,52 +7,85 @@ nav_order: 3
 
 # Derivatives & Preprocessing
 
+> **How to check what actually exists.** This page lists the derivative trees
+> and what each one is for. It does *not* assert per-subject completeness —
+> that goes stale. Query the Contract A catalog
+> (`inventory/catalog.duckdb`) for which subjects/sessions a given pipeline
+> has covered.
+
 ```
 derivatives/
-├── fmriprep/              # fMRIPrep v24.1.1 preprocessed data (all sessions)
-├── fmriprep_nordic/       # fMRIPrep v24.1.1 run on NORDIC-denoised BOLD
-├── nordic/                # Raw NORDIC denoising outputs (pre-fMRIPrep)
-├── mriqc/                 # MRIQC v24.1.0 quality metrics and HTML reports
-├── qc_review/             # HTML QC dashboards and BOLD QC benchmarks
-├── atlases/               # Group-level reference atlases in template space
-├── anatomical_rois/       # Subject-specific anatomically-defined ROIs
-├── functional_rois/       # Subject-specific functionally-defined ROIs
-├── hippunfold/            # HippUnfold hippocampal surface unfolding (whole-brain T2w)
-├── hippunfold_oblcor/     # HippUnfold using oblique-coronal T2w acquisition
-├── hsf/                   # Hippocampal subfield segmentation — HSF (Poiret et al.)
-├── hsf_oblcor/            # HSF using oblique-coronal T2w acquisition
-├── behavioral_analysis/   # Behavioral accuracy, d-prime, and learning analyses
-├── bids_validation/       # Validation outputs, extracted event files, survey logs
-└── fmriprep_pre022426/    # Archived earlier fMRIPrep run (legacy)
+├── fmriprep/               # fMRIPrep preprocessed data (see version note below)
+├── fmriprep_nordic/        # fMRIPrep run on NORDIC-denoised BOLD
+├── nordic/                 # Raw NORDIC denoising outputs (pre-fMRIPrep)
+├── mriqc/                  # MRIQC quality metrics and HTML reports
+├── preprocessing_qc/       # Per-run QC decision records (auto-stubs; see below)
+├── qc_review/              # HTML QC dashboards and BOLD QC benchmarks
+├── qc/                     # QC benchmark outputs (GLMsingle, ISC comparisons)
+├── atlases/                # Group-level reference atlases in template space
+├── anatomical_rois/        # Subject-specific anatomically-defined ROIs
+├── functional_rois/        # Subject-specific functionally-defined ROIs
+├── hippunfold/             # HippUnfold hippocampal surface unfolding (whole-brain T2w)
+├── hippunfold_oblcor/      # HippUnfold using oblique-coronal T2w acquisition
+├── hsf/                    # Hippocampal subfield segmentation — HSF (Poiret et al.)
+├── hsf_oblcor/             # HSF using oblique-coronal T2w acquisition
+├── glmsingle/              # GLMsingle single-trial betas, TB tasks
+├── glmsingle_nordic/       # GLMsingle betas, TB tasks, NORDIC input
+├── glmsingle_nat/          # GLMsingle betas, NAT tasks
+├── glmsingle_nat_nordic/   # GLMsingle betas, NAT tasks, NORDIC input
+├── pattern_similarity/     # Pattern-similarity benchmark results
+├── srm_stimulus_space/     # Shared-response-model stimulus-space analyses
+├── stimuli_features/       # Computational stimulus features (see stimuli_features.md)
+└── behavioral_analysis/    # Behavioral accuracy, d-prime, and learning analyses
 ```
 
-## Target Pipeline
+**Pipeline versions.** The derivative trees on disk record their own
+provenance in `dataset_description.json` — read it there rather than trusting
+a number quoted in prose. At the time of writing, `fmriprep/` and
+`fmriprep_nordic/` were both produced with **fMRIPrep 24.1.1** and `mriqc/`
+with **MRIQC 24.1.0**.
+
+> **Version note.** The project standard for *new* fMRIPrep runs moved to
+> **25.2.5 LTS** in August 2026, with an optional FreeSurfer 8 external-recon
+> stage. Existing derivatives have **not** been reprocessed — everything on
+> disk today is still 24.1.1 output. Any reprocessing campaign will be noted
+> here when it happens.
+
+**Trees removed since earlier versions of this page:** `bids_validation/`
+(deleted 2026-08 after review; 256 GB) and `fmriprep_pre022426/` (archived
+legacy fMRIPrep run). Neither exists any more.
+
+## Pipeline overview
 
 ```
-sourcedata (DICOMs, raw behavioral)
+sourcedata (DICOMs, raw behavioral)          [mmmsourcedata/, outside the BIDS tree]
     │
     ▼
 BIDS raw (NIfTI + JSON + events TSV)
     │
     ├──▶ MRIQC (quality metrics, outlier detection)
     │
-    ├──▶ fMRIPrep / fMRIPrep+NORDIC (preprocessing: registration, distortion correction, confounds)
+    ├──▶ fMRIPrep / fMRIPrep+NORDIC (registration, distortion correction, confounds)
+    │        │
+    │        ├──▶ glmsingle* (single-trial betas)
+    │        ├──▶ pattern_similarity/, srm_stimulus_space/ (analyses)
+    │        └──▶ preprocessing_qc/ (per-run QC decision records)
     │
     ├──▶ atlases/ (reference parcellations in template space)
     │
-    ├──▶ anatomical_rois/ (subject-specific anatomical segmentations)
+    ├──▶ anatomical_rois/, hippunfold*/, hsf*/ (structural segmentations)
     │
-    ├──▶ functional_rois/ (subject-specific task-defined ROIs)
-    │
-    └──▶ ready/ (analysis-ready streams — see Analysis-Ready Preprocessing Pipeline)
+    └──▶ functional_rois/ (subject-specific task-defined ROIs)
 ```
 
 - MRIQC and fMRIPrep run in parallel, producing complementary QA output.
-- `fmriprep_pre022426/` is an archived earlier run; the canonical output is in
-  `fmriprep/`.
-- Analysis-ready outputs (`ready/glmsingle/`, `ready/naturalistic/`,
-  `ready/connectivity/`) are documented in the
-  [Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md) page.
+- Downstream analysis trees (`glmsingle*`, `pattern_similarity/`,
+  `srm_stimulus_space/`) read `fmriprep/` or `fmriprep_nordic/` **directly**.
+- `derivatives/ready/` — the "analysis-ready streams" layer — is a **design
+  that has not been implemented**. The directory does not exist and no stream
+  cleaner has run. See
+  [Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md), which
+  labels each part of that design. Do not write code against `ready/` paths.
 
 ## Atlases
 
@@ -119,9 +152,16 @@ derivatives/functional_rois/
 ## fMRIPrep (NORDIC)
 
 `fmriprep_nordic/` contains a parallel fMRIPrep run using NORDIC-denoised BOLD
-as input (see `nordic/` below). Structure mirrors `fmriprep/` exactly. The
-canonical source for each run (original vs. NORDIC) is recorded per-run in the
-QC decisions file; see [Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md).
+as input (see `nordic/` below). Structure mirrors `fmriprep/` exactly, and both
+trees are complete for the BIDSified subjects.
+
+Choosing between them is currently a **path choice made by the consumer** —
+there is no per-run source flag anywhere in the dataset (an earlier version of
+this page said the QC decisions file carried one; it does not). As of 2026-08,
+new analyses default to the non-NORDIC `fmriprep/` tree. The two variants have
+been benchmarked against each other for both trial-based and naturalistic
+data; derivative trees carrying a `_nordic` suffix are the NORDIC-input arm of
+those comparisons.
 
 ## NORDIC
 
@@ -195,22 +235,24 @@ derivatives/behavioral_analysis/
 └── sub-05/
 ```
 
-## BIDS Validation
+## QC decisions (`preprocessing_qc/`)
 
-Outputs from BIDS validation and event file extraction processes.
+One JSON per BOLD run recording an append-only decision history
+(`keep` / `exclude` / `investigate` / `pending`).
 
-```
-derivatives/bids_validation/
-├── dataset_description.json
-├── eventfiles/          # Extracted event files per subject
-│   ├── sub-03/
-│   ├── sub-04/
-│   └── sub-05/
-└── survey_logs/         # Pre-scan questionnaire processing logs
-```
-
-## Analysis-Ready Outputs
-
-The `ready/` directory (GLMSingle, naturalistic, and connectivity streams) and
-the `preprocessing_qc/` QC decisions files are documented in the
+**Every record currently on disk is an auto-generated stub** written in
+2026-04 from framewise-displacement statistics — no run has a human QC
+sign-off yet. Treat the dataset as not yet QC-reviewed. Schema and the
+read/write API are documented on the
 [Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md) page.
+
+## Stimulus features (`stimuli_features/`)
+
+Computational features for the three stimulus sets, on the Contract B 0.5 s
+grid. See [Computational Feature Extraction](stimuli_features.md).
+
+---
+
+*Tree listing on this page verified against the filesystem on 2026-08-20.
+Per-subject completeness is deliberately not asserted here — query the
+catalog.*

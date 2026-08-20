@@ -11,12 +11,16 @@ Movie-watching and free recall paradigm. During encoding, participants watch
 movie clips. During retrieval, participants verbally recall what they remember
 (audio recorded via microphone).
 
-| Current label | Planned label | Description |
-|---------------|---------------|-------------|
-| `task-encoding` | `task-NATencoding` | Movie viewing |
-| `task-retrieval` | `task-NATretrieval` | Verbal free recall (audio recorded) |
-| `task-math` | `task-NATmath` | Math distractor task |
-| `task-resting` | `task-NATresting` | Resting state between task blocks |
+| BIDS task label | Description |
+|---|---|
+| `task-NATencoding` | Movie viewing |
+| `task-NATretrieval` | Verbal free recall (audio recorded) |
+| `task-NATmath` | Math distractor task |
+| `task-NATresting` | Resting state between task blocks |
+
+These are the labels in the files. The `NAT*` prefixes were applied during
+BIDSification — an earlier version of this page listed them as "planned"
+alongside unprefixed labels, which no longer exist anywhere in the dataset.
 
 ## Movie Viewing
 - Watched 8 films of 2-6 minutes each
