@@ -71,7 +71,7 @@ canonical source of truth for session-level anomalies. Companion sidecar:
 
 ### Converters
 
-All converters live in `code/mmmdata/raw2bids_converters/`. The orchestrator
+All converters live in `code/mmmdata/src/python/raw2bids_converters/`. The orchestrator
 (`run_all.py`) reads `file_inventory.csv` and dispatches each file to the
 appropriate converter.
 
@@ -84,6 +84,19 @@ appropriate converter.
 | localizer_events.py | localizer_events | Localizer CSVs | events TSV | 9 |
 | edf_to_physio.py | edf_to_physio | EyeLink EDF files | physio TSV.GZ (3 cols: x, y, pupil) | 73 |
 | physio_dcm.py | physio_dcm | Siemens PhysioLog DICOMs | physio TSV.GZ (cardiac, pulse, resp) | 232 |
+| spoken_recall.py | *(standalone)* | ses-29 Whisper transcripts | beh TSV | in progress |
+
+`spoken_recall.py` is not dispatched by `run_all.py` — it is a standalone
+converter for the ses-29 final free-recall session and is run directly
+(`python spoken_recall.py 3 4 5 --dry-run`). That session is not yet BIDS; see
+[Quality & Compliance](compliance-status.md).
+
+> **Note (2026-08-20).** This package existed as two divergent git-tracked
+> copies — `code/mmmdata/raw2bids_converters/` and
+> `code/mmmdata/src/python/raw2bids_converters/` — which had forked in both
+> directions since February 2026. They were reconciled into the
+> `src/python/` path above and the duplicate removed. Anything referring to
+> the old top-level path predates that.
 
 **Total output:** 834 conversions producing 1,298 data files + 1,298 JSON sidecars = 2,596 files.
 
@@ -93,7 +106,7 @@ appropriate converter.
 source file to a BIDS destination and conversion type. Regenerate with:
 
 ```bash
-cd /gpfs/projects/hulacon/shared/mmmdata/code/mmmdata/raw2bids_converters
+cd /gpfs/projects/hulacon/shared/mmmdata/code/mmmdata/src/python/raw2bids_converters
 /projects/hulacon/shared/envs/stimfeat/bin/python3 generate_inventory.py
 ```
 
@@ -153,7 +166,7 @@ Not all 87 EyeLink EDF files are usable. Quality is assessed by
 
 **73 included** (37 gaze+pupil + 36 pupil_only), **14 excluded** (all retrieval
 runs where both channels fall below 60%). Output:
-`raw2bids_converters/edf_triage.csv`.
+`src/python/raw2bids_converters/edf_triage.csv`.
 
 Key patterns:
 - **sub-04:** Reliably good (25/29 gaze+pupil)
@@ -166,7 +179,7 @@ Siemens PhysioLog DICOMs contain PMU waveform data embedded in DICOM private tag
 `(7FE1,1010)`. Each DICOM has 5 sections (ECG, PULS, RESP, EXT, ACQUISITION_INFO).
 `physio_dcm.py` extracts and resamples to uniform time series.
 
-**Triage results** (`raw2bids_converters/physio_triage.csv`):
+**Triage results** (`src/python/raw2bids_converters/physio_triage.csv`):
 
 | Status | Count | Description |
 |--------|-------|-------------|
@@ -405,7 +418,7 @@ system (for imaging DICOMs).
 |----------|------|
 | BIDS root | `/gpfs/projects/hulacon/shared/mmmdata/` |
 | Sourcedata | `/gpfs/projects/hulacon/shared/mmmsourcedata/sub-XX/ses-YY/` |
-| Behavioral converters | `code/mmmdata/raw2bids_converters/` |
+| Behavioral converters | `code/mmmdata/src/python/raw2bids_converters/` |
 | dcm2bids config system | `code/mmmdata/src/python/dcm2bids_config/` |
 | dcm2bids generated configs | `code/dcm2bids_configfiles/sub-XX/` |
 | Pipeline scripts | `code/mmmdata/scripts/` |
