@@ -31,6 +31,10 @@ where the check was actually run — see the note on each.*
       approach (not `IntendedFor`)
 - [x] **MRIQC**: Running for all subjects/sessions; HTML reports generated for
       structural and functional scans
+- [x] **MRIQC group report**: `group_{T1w,T2w,bold,dwi}.{tsv,html}` in
+      `derivatives/mriqc/`, generated 2026-08-20. Coverage verified exact
+      against participant-level outputs (T1w 12, T2w 6, bold 609, dwi 20 rows).
+      Regenerate with `mmmdata/scripts/mriqc_group.sbatch` after MRIQC additions
 - [x] **`participants.tsv`**: Correct subject IDs (sub-03/04/05) with full
       demographics (age, sex, handedness, vision, education, etc.)
 - [x] **Phenotype data**: `phenotype/vviq.tsv` and `phenotype/final_debriefing.tsv`
@@ -51,8 +55,6 @@ where the check was actually run — see the note on each.*
       have no `ses-29/` directory at all. Transcription is done for all three
       subjects and a converter is drafted; the work is blocked on a manual
       listening/verification pass.
-- [ ] **MRIQC group report**: individual reports available; no group-level
-      report exists in `derivatives/mriqc/`.
 - [ ] **QC review**: `derivatives/preprocessing_qc/` holds a decision record
       for all 609 BOLD runs across sub-03/04/05, but **every one is an
       auto-generated stub** — no run carries a human sign-off. See
