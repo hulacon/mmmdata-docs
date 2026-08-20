@@ -9,14 +9,14 @@ nav_order: 3
 
 Short films (~4 minutes each) shown during naturalistic encoding sessions
 (ses-19 through ses-28). The movie schedule is defined in
-`movies/MMM movies - Sheet1.csv`.
+`movies/MMM_movies_Sheet1.csv`.
 
 - **Count**: 60 unique titles across 10 sessions
 - **Duration**: ~4 minutes each
 - **Styles**: Animated, live-action, and stop-motion; with or without speech
 - **Source**: Mix of short films and clips from longer films (sourced via a
   "memory search project" with collaborators Jordan & Kahlyn). Movie files are
-  stored on Google Drive (links in `short films 4 minutes.rtf`).
+  stored on Google Drive (links in `short_films_4_minutes.rtf`).
 - **Movie files**: 60 `.mov` files in `movies/movie_files/`, named
   `{Title}_trimmed_normalized_filtered.mov`
 - **Movie cues**: 60 `.jpg` recall cue images in `movies/movie_cues/`, named
@@ -57,7 +57,7 @@ Each session contains 6–8 movies:
 
 ## Movie Schedule Metadata
 
-`MMM movies - Sheet1.csv` columns:
+`MMM_movies_Sheet1.csv` columns:
 
 | Column | Description |
 |--------|-------------|

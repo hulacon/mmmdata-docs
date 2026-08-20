@@ -38,8 +38,8 @@ stimuli/
 │   ├── movie_cues/                # 60 recall cue images (.jpg)
 │   ├── movie_annotations/         # 63 hand-annotated event descriptions (.xlsx)
 │   ├── viz2psy_scores/            # Per-movie temporal features (viz2psy)
-│   ├── MMM movies - Sheet1.csv    # Session-by-session movie schedule
-│   └── short films 4 minutes.rtf  # Source notes and links
+│   ├── MMM_movies_Sheet1.csv      # Session-by-session movie schedule
+│   └── short_films_4_minutes.rtf  # Source notes and links
 └── twp1000/                       # Auditory stimuli (spoken words)
     ├── twp1000.csv                # Word metadata (1,000-word subset)
     ├── twp_all.csv                # Full Toronto Word Pool metadata
