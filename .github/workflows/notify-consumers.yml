@@ -5,19 +5,34 @@ on:
     branches: [main]
 
 jobs:
+  # One job per consumer with fail-fast off: a transient dispatch-API 5xx for
+  # one consumer must not skip the other. Previously these were two sequential
+  # steps, so the 2026-08-17 "No server is currently available" error on the
+  # first step (run 32053126017) silently dropped both notifications.
   dispatch:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - hulacon/mmmdata
+          - jhutchin/mmmdata-agents
     steps:
-      - name: Notify hulacon/mmmdata
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.DOCS_SYNC_TOKEN }}
-          repository: hulacon/mmmdata
-          event-type: shared-docs-updated
-
-      - name: Notify jhutchin/mmmdata-agents
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.DOCS_SYNC_TOKEN }}
-          repository: jhutchin/mmmdata-agents
-          event-type: shared-docs-updated
+      - name: Notify ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_SYNC_TOKEN }}
+          CONSUMER: ${{ matrix.repo }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if gh api -X POST "repos/${CONSUMER}/dispatches" \
+                 -f event_type=shared-docs-updated; then
+              echo "Dispatched to ${CONSUMER} on attempt ${attempt}"
+              exit 0
+            fi
+            echo "Dispatch to ${CONSUMER} failed (attempt ${attempt}/5); retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::Could not dispatch to ${CONSUMER} after 5 attempts. \
+          Check DOCS_SYNC_TOKEN has repo scope on ${CONSUMER}, then re-run \
+          this workflow to resend the notification."
+          exit 1
