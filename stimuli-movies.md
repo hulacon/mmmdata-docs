@@ -92,17 +92,16 @@ Movie frames and cue images are processed with
 [viz2psy](https://github.com/hulacon/viz2psy), producing per-movie temporal
 feature timeseries.
 
-> **Two layouts.** The legacy all-models output is in
-> `movies/viz2psy_scores/` (described below). The current Contract B layout
-> is `derivatives/stimuli_features/movies/<stimulus-id>/`, on a 0.5 s grid
-> and keyed by `stimulus_id`. Both are on disk; see
-> [Computational Stimulus Features](stimuli_features.md) for which carries
-> what.
+Output lands in `derivatives/stimuli_features/movies/<stimulus-id>/`, one CSV
+per model on a **0.5 s grid**, keyed by `stimulus_id`. Consumers read the
+assembled tables — `psytwill/movies_frames_features.parquet` for the visual
+grid, `movies_audio_frames_features.parquet` for acoustics, and the
+transcript, caption, and annotation groups alongside them. See
+[Computational Stimulus Features](stimuli_features.md).
 
-For each movie, the output includes:
-- **`{Title}_scores.csv`** — one row per sampled frame, indexed by `time` (seconds),
-  with ~2,900 feature columns (memorability, emotion, CLIP embeddings, etc.)
-- **`{Title}_scores.meta.json`** — feature definitions and provenance
+The pre-0.6.0 per-movie `{Title}_scores.csv` under `movies/viz2psy_scores/`
+is **superseded** — wide, indexed by `time` alone, and using the column names
+viz2psy 0.6.0 renamed. It is queued for deletion.
 - **`{Title}_scores_dashboard.html`** — interactive visualization of features over time
 - **`{Title}_scores_frames/`** — extracted frame images (JPG)
 

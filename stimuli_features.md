@@ -15,12 +15,18 @@ Stimuli are scored by a family of extractors — **viz2psy** (visual),
 Outputs follow a shared column and sidecar convention so features from
 different extractors can be joined on a common stimulus identifier.
 
-> **Two layouts coexist right now.** A migration to the current
-> `derivatives/stimuli_features/` layout is **in progress**. The older
-> per-set files under `stimuli/` are still on disk, still valid for what
-> they contain, and have **not** yet been re-extracted into the new layout.
-> The two use different column conventions — check which one you are
-> reading. Details in [Layouts](#layouts) below.
+> **The extraction campaign is complete (2026-08-23).** Every model in the
+> suite has run over every applicable stimulus set into
+> `derivatives/stimuli_features/`, and `psytwill features` assembles it into
+> **29 queryable tables, 651,913,184 rows, 3.67 GB of parquet**. That layout
+> is the one to read.
+>
+> The pre-0.6.0 files under `stimuli/<set>/viz2psy_scores*` are **superseded
+> and queued for deletion** (mmmdata-agents `docs/CLUSTER-TODO.md` §12). They
+> are still on disk, but nothing reads them any more, and they use the column
+> names viz2psy 0.6.0 renamed — a recipe quoting a bare `memorability` or
+> `valence` column predates the current store. Do not reconcile new work
+> against them.
 
 ---
 
@@ -74,13 +80,44 @@ derivatives/stimuli_features/
 
 Time-varying features (movies) are on a **0.5 s grid**.
 
-**Coverage note:** the sets above currently carry the CLIP / BLIP-caption /
-EBind families. The remaining viz2psy models (see table below) have **not**
-been re-extracted into this layout yet — for those, use the legacy files.
+**Coverage:** all three sets carry the full suite — viz2psy over images,
+movie frames, and cue images; aud2psy over movie soundtracks and word audio;
+word2psy over words, machine captions, human captions, transcripts, and scene
+annotations. The tree above shows the CLIP / caption / EBind families as
+representative; `psytwill/` is the complete index of what exists.
 
-The word set (`twp1000`) has a **text arm only**. An EBind audio arm was
-evaluated on the spoken words and carried no lexical signal, so it is not
-published for that set.
+The word set (`twp1000`) has a **text arm only** for the shared embedding
+spaces. An EBind audio arm was evaluated on the spoken words and carried no
+lexical signal, so it is not published for that set. The word *audio* is
+still scored by aud2psy (`twp1000_word_audio_*`).
+
+### Querying the store — `psytwill/*.parquet`
+
+The per-cell CSVs above are the extraction record. What consumers read are
+the psytwill aggregates, one parquet per **group** — a (stimulus set ×
+source × granularity) table. Every group shares one long schema, a row per
+(stimulus, coordinate, model, feature):
+
+```
+stimulus_id, voice, time, onset, offset, chunk_idx, word_idx,
+modality, extractor, extractor_version, model, feature, value, value_str
+```
+
+Granularity is part of the group id, not a column: `_frames` per 0.5 s
+window, `_chunks` per text chunk or transcript segment, `_words` per word,
+and a bare group per stimulus. Which key columns a group populates follows
+from that — a per-image group keys on `stimulus_id` alone, a frame group
+adds `time`, a transcript group `onset`/`offset`/`chunk_idx`.
+
+Sequence comes from row order and the structural ordinals; **experiment
+variables are not in the feature tables**. Extractors carry stimulus
+identity and the stimulus's own intrinsic coordinates only. Anything about
+how a stimulus was *used* — condition, run, annotator, segment number —
+lives in `derivatives/stimuli_features/_labels/` and joins back on
+`stimulus_id` plus the ordinal.
+
+Agents reach all of this through the stimuli MCP tools, which take a
+`group` parameter; `list_stimulus_sets` enumerates the group ids.
 
 ### Legacy — `stimuli/<set>/viz2psy_scores.csv`
 
@@ -97,15 +134,17 @@ stimuli/
     └── <Movie_Name>_scores.csv            # per-movie frame-level features
 ```
 
-These files are the only source for the 11-model feature set until the
-extraction campaign finishes. Join them to the registry on the image filename
-stem.
+**Superseded 2026-08-23** and queued for deletion (CLUSTER-TODO §12): the
+campaign re-extracted every one of these models into the current layout under
+the §4.1 column convention. Nothing in `mmmdata` or `mmmdata-agents` reads
+them any more. They are described here so an older analysis that cites them
+can be recognised, not so new work can use them.
 
 ---
 
 ## viz2psy models
 
-The 11 visual models in the all-models extraction:
+The 11 visual models, run over images, movie frames, and cue images:
 
 | Model | Output | What it measures |
 |-------|--------|------------------|
@@ -152,15 +191,37 @@ and run in the shared `stimfeat` conda environment
 (`/gpfs/projects/hulacon/shared/envs/stimfeat`), which has viz2psy, aud2psy,
 word2psy and psytwill installed. GPU required for most models.
 
-```bash
-# legacy all-models extraction (writes the stimuli/ layout)
-python scripts/run_viz2psy.py images --dry-run
-python scripts/run_viz2psy.py movies --frame-interval 1.0
-python scripts/run_viz2psy.py images --models resmem emonet aesthetics
+`stimfeat_campaign.py` is the one entry point. The campaign is a matrix of
+**cells** — (stimulus set × source × model × unit) — and each cell's sidecar
+is its done-marker, so the driver is idempotent and resumes at model
+granularity with no state file.
 
-# current layout, via the psytwill `features` verb / recipe sbatch
-sbatch scripts/stimfeat_ebind.sbatch
+```bash
+# what would run, before anything runs
+python scripts/stimfeat_campaign.py plan
+python scripts/stimfeat_campaign.py plan --set movies --todo
+
+# extract; filters compose and apply to every verb
+python scripts/stimfeat_campaign.py run --set shared1000 --source image --model resmem
+python scripts/stimfeat_campaign.py run --set movies --source audio --dry-run
+
+# §4.1-check what is already written, without re-extracting
+python scripts/stimfeat_campaign.py verify
+
+# assemble the psytwill aggregates consumers read
+python scripts/stimfeat_campaign.py aggregate --dry-run
 ```
+
+`verify` checks each cell against the consumer that has to attribute its
+columns — psytwill's own resolver — in **both** directions: emitted columns
+that match no model prefix, tables with features but no `stimulus_id`,
+columns emitted but not declared, and columns declared but never written. A
+gate that reads declarations alone cannot see the second and third of those,
+which is how three defects reached the store before 2026-08-23.
+
+The pre-0.6.0 `run_viz2psy.py` and its four SLURM wrappers are archived at
+`scripts/archive/` — see that directory's README for why, and for the
+`stimfeat_campaign.py` equivalent of what they did.
 
 ---
 

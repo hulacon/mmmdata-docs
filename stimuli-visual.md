@@ -72,11 +72,21 @@ sports, kitchen, food, furniture, electronic, appliance, and indoor.
 ## Computational Features (viz2psy)
 
 All 1,000 shared images are processed with
-[viz2psy](https://github.com/hulacon/viz2psy), producing a single consolidated
-output:
+[viz2psy](https://github.com/hulacon/viz2psy). Output lands in the Contract B
+store, one CSV per model with a `.meta.json` sidecar carrying the checkpoint:
 
-- **`viz2psy_scores.csv`** — one row per image (~2,900 columns), indexed by `filename`
-- **`viz2psy_scores.meta.json`** — feature definitions, model versions, and provenance
+```
+derivatives/stimuli_features/shared1000/<model>.csv + <model>.meta.json
+```
+
+Consumers read the assembled table rather than those files:
+`derivatives/stimuli_features/psytwill/shared1000_image_features.parquet`,
+keyed by `stimulus_id`. See
+[Computational Stimulus Features](stimuli_features.md) for the schema.
+
+The pre-0.6.0 `viz2psy_scores.csv` (one wide row per image, ~2,900 columns,
+indexed by `filename`) is **superseded** — it predates the §4.1 column
+renames and is queued for deletion.
 
 Features extracted per image include:
 
