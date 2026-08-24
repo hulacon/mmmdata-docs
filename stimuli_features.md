@@ -21,12 +21,12 @@ different extractors can be joined on a common stimulus identifier.
 > **29 queryable tables, 651,913,184 rows, 3.67 GB of parquet**. That layout
 > is the one to read.
 >
-> The pre-0.6.0 files under `stimuli/<set>/viz2psy_scores*` are **superseded
-> and queued for deletion** (mmmdata-agents `docs/CLUSTER-TODO.md` §12). They
-> are still on disk, but nothing reads them any more, and they use the column
-> names viz2psy 0.6.0 renamed — a recipe quoting a bare `memorability` or
-> `valence` column predates the current store. Do not reconcile new work
-> against them.
+> The pre-0.6.0 files under `stimuli/<set>/viz2psy_scores*` were **deleted
+> 2026-08-23** (5.2 G). They used the column names viz2psy 0.6.0 renamed, so a
+> recipe quoting a bare `memorability` or `valence` column predates the current
+> store — treat it as stale rather than reconciling against files that no
+> longer exist. Their five producer scripts are archived at
+> `mmmdata/scripts/archive/`, which is where the provenance lives.
 
 ---
 
@@ -134,11 +134,12 @@ stimuli/
     └── <Movie_Name>_scores.csv            # per-movie frame-level features
 ```
 
-**Superseded 2026-08-23** and queued for deletion (CLUSTER-TODO §12): the
-campaign re-extracted every one of these models into the current layout under
-the §4.1 column convention. Nothing in `mmmdata` or `mmmdata-agents` reads
-them any more. They are described here so an older analysis that cites them
-can be recognised, not so new work can use them.
+**Deleted 2026-08-23:** the campaign re-extracted every one of these models
+into the current layout under the §4.1 column convention, and the legacy tree
+was then removed. Nothing in `mmmdata` or `mmmdata-agents` read them by that
+point. The layout above is documented so an older analysis that cites these
+paths can be recognised, not so new work can use them — the files themselves
+are gone.
 
 ---
 
