@@ -43,14 +43,7 @@ These labels are expected to remain unchanged.
 - Stimulus frame rate: 15 Hz; pre-generated aperture matrices stored in MATLAB workspace
 
 ### Data inventory
-| Subject | Session | Runs |
-|---------|---------|------|
-| sub-03 | ses-02 | 3 |
-| sub-03 | ses-03 | 3 |
-| sub-04 | ses-02 | 3 |
-| sub-04 | ses-03 | 3 |
-| sub-05 | ses-02 | 3 |
-| sub-05 | ses-03 | 3 |
+Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
 
 ---
 
@@ -78,14 +71,10 @@ These labels are expected to remain unchanged.
 - Original fLoc code: `sourcedata/shared/experiment_code/localizer/floc/` (Stigliani et al. V2.0, August 2015)
 - Updated version: `sourcedata/shared/experiment_code/localizer/floc_new/` (V3.0, August 2017; 12 stimuli per block)
 - Block-level timing in `.par` files; trial-level timing in detailed script files
+- BIDS `_events.tsv` files for fLoc are block-level (written 2026-08-21)
 
 ### Data inventory
-| Subject | Session | Runs |
-|---------|---------|------|
-| sub-03 | ses-03 | 6 |
-| sub-04 | ses-04 | 6 |
-| sub-05 | ses-02 | 4 |
-| sub-05 | ses-03 | 3 |
+Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
 
 ---
 
@@ -108,25 +97,22 @@ These labels are expected to remain unchanged.
 - Hand-coded: `sourcedata/shared/experiment_code/final_cued_recall/final_cued_recall_localizers/localizers/motor/`
 
 ### Data inventory
-| Subject | Session | Runs | Events? |
-|---------|---------|------|---------|
-| sub-03 | ses-30 | 2 | Yes |
-| sub-04 | ses-30 | 2 | Yes |
-| sub-05 | ses-30 | 2 | Yes |
+Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
 
 ---
 
 ## Auditory Category Localizer (task-auditory)
 
-**Source:** Adapted from the auditory cortex localizer in Tang et al. (2023) / LeBel et al. (2023). The original protocol used 10 repeats of a 1-minute stimulus (20 s music, 20 s speech, 20 s nature sounds) with repeatability-based ROI definition. The MMMData version uses a single continuous ~562 s auditory stimulus containing music, speech, and natural sounds.
+**Source:** Adapted from the auditory cortex localizer in Tang et al. (2023) / LeBel et al. (2023). The original protocol used 10 repeats of a 1-minute stimulus (20 s music, 20 s speech, 20 s nature sounds) with repeatability-based ROI definition. The MMMData version uses a single continuous ~611 s auditory stimulus containing music, speech, and natural sounds.
 
 **Citations:**
 - Tang, J., LeBel, A., Jain, S. et al. Semantic reconstruction of continuous language from non-invasive brain recordings. *Nature Neuroscience*, 26, 858–866 (2023). <https://doi.org/10.1038/s41593-023-01304-9>
 - LeBel, A., et al. A natural language fMRI dataset for voxelwise encoding models. *Scientific Data*, 10, 555 (2023). <https://doi.org/10.1038/s41597-023-02437-z>
 
 ### Design
-- Single continuous auditory stimulus (~562 s) followed by a post-stimulus fixation period (~50 s)
-- Stimulus content: music, speech, and natural sounds (single WAV file: `auditory_localizer_filtered.wav`)
+- Single continuous auditory stimulus followed by a post-stimulus fixation period (~50 s)
+- Stimulus content: music, speech, and natural sounds, in a single WAV file. The experiment code references `auditory_localizer_filtered.wav`; `auditory_localizer.wav` measured 611.31 s on 2026-08-21, so the stimulus is ~611 s (an earlier version of this page said ~562 s)
+- Run length differs by session: the early (ses-02/ses-03) runs were acquired shorter than the stimulus file; the ses-30 runs are full length. Volume counts are in the catalog
 - 1 run per session
 - Collected during ses-02 or ses-03 (1st or 2nd localizer session) and again during ses-30 (final session)
 - Implemented in PsychoPy (both Builder `.psyexp` and hand-coded `.py` versions exist)
@@ -136,16 +122,9 @@ These labels are expected to remain unchanged.
 - Hand-coded: `sourcedata/shared/experiment_code/localizer/other localizers/auditory/localizer_auditory.py`
 
 ### Data inventory
-| Subject | Session | Runs | Events? |
-|---------|---------|------|---------|
-| sub-03 | ses-02 | 1 | No |
-| sub-03 | ses-30 | 1 | Yes |
-| sub-04 | ses-02 | 1 | No |
-| sub-04 | ses-30 | 1 | Yes |
-| sub-05 | ses-03 | 1 | No |
-| sub-05 | ses-30 | 1 | Yes |
+Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
 
-Events for ses-30 were converted via `mmmdata/raw2bids_converters/localizer_events.py`. Events for ses-02/ses-03 are missing (behavioral timing CSVs not collected for those sessions).
+Events for ses-30 were converted via `mmmdata/raw2bids_converters/localizer_events.py`. Events for the ses-02/ses-03 auditory runs are still absent; inferring their onsets is in progress.
 
 ---
 
@@ -171,16 +150,9 @@ Events for ses-30 were converted via `mmmdata/raw2bids_converters/localizer_even
 - Stimulus WAV files in `tone/` subdirectory
 
 ### Data inventory
-| Subject | Session | Runs |
-|---------|---------|------|
-| sub-03 | ses-02 | 1 |
-| sub-03 | ses-03 | 1 |
-| sub-04 | ses-02 | 1 |
-| sub-04 | ses-03 | 1 |
-| sub-05 | ses-02 | 1 |
-| sub-05 | ses-03 | 2 |
+Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
 
-No events.tsv files exist. Timing is deterministic and can be reconstructed from experiment code parameters.
+`_events.tsv` files for tone runs were written 2026-08-21. Timing is deterministic and follows the experiment code parameters above.
 
 ---
 
@@ -190,9 +162,7 @@ Fixation baseline scan collected during ses-30 (final session). Participants mai
 
 Used as calibration data for gaze reconstruction from BOLD signal (PEER / DeepMReye).
 
+`_events.tsv` files for fixation runs were written 2026-08-21.
+
 ### Data inventory
-| Subject | Session | Runs |
-|---------|---------|------|
-| sub-03 | ses-30 | 1 |
-| sub-04 | ses-30 | 1 |
-| sub-05 | ses-30 | 1 |
+Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
