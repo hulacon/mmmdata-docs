@@ -16,7 +16,7 @@ into the processing pipeline:
 | Tool | Version | Purpose |
 |------|---------|---------|
 | **MRIQC** | v24.1.0 | Computes image quality metrics (IQMs) and generates visual reports for structural and functional scans |
-| **fMRIPrep** | v24.1.1 | Produces confound regressors including framewise displacement, DVARS, and CompCor components |
+| **fMRIPrep** | v25.2.5 | Produces confound regressors including framewise displacement, DVARS, and CompCor components |
 
 ---
 
@@ -178,15 +178,23 @@ applied in two scopes:
 
 ### Decision Framework
 
-Run-level disposition should follow a tiered approach:
+Run-level disposition should follow a tiered approach. Each tier maps to one
+of the four values in the implemented decision schema
+(`keep` / `exclude` / `investigate` / `pending`), documented under
+[Layer 1 on the Analysis-Ready Preprocessing Pipeline page](preprocessing-pipeline.md#layer-1-shared-base):
 
-1. **Include**: Run meets all quality thresholds
-2. **Flag for review**: Run exceeds one or more soft thresholds; visual
-   inspection determines inclusion
-3. **Include with censoring**: Run has isolated high-motion volumes that can
-   be censored (scrubbed) during analysis; overall run quality is acceptable
-4. **Exclude**: Run exceeds hard thresholds or visual inspection reveals
-   uncorrectable artifact
+1. **Include** → `keep`: Run meets all quality thresholds
+2. **Flag for review** → `investigate`: Run exceeds one or more soft
+   thresholds; visual inspection determines inclusion
+3. **Include with censoring** → `keep`: Run has isolated high-motion volumes
+   that can be censored (scrubbed) during analysis; overall run quality is
+   acceptable. The decision record has no per-TR field; per-TR outlier
+   flagging is a layer-2 design item on the pipeline page
+4. **Exclude** → `exclude`: Run exceeds hard thresholds or visual inspection
+   reveals uncorrectable artifact
+
+`pending` is the value automated writers record while a human decision is
+outstanding; it is not one of the tiers above.
 
 > **Note**: In a longitudinal, densely-sampled design like MMMData,
 > within-subject outlier detection is particularly important because
@@ -212,8 +220,8 @@ run with columns:
 | `task` | Task label |
 | `run` | Run number |
 | `modality` | `bold`, `T1w`, `T2w`, `dwi` |
-| `disposition` | `include` / `flag` / `censor` / `exclude` |
-| `reason` | Free-text reason for non-include dispositions |
+| `decision` | `keep` / `exclude` / `investigate` / `pending` (the implemented schema; see [Decision Framework](#decision-framework)) |
+| `reason` | Free-text reason for non-`keep` decisions |
 | `mean_fd` | Mean framewise displacement (BOLD only) |
 | `pct_high_fd` | Percentage of volumes with FD > threshold |
 | `tsnr` | Temporal SNR (BOLD only) |
