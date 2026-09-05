@@ -13,11 +13,18 @@ nav_order: 3
 > (`inventory/catalog.duckdb`) for which subjects/sessions a given pipeline
 > has covered.
 
+The listing below is the set of derivative tree *names* the project uses. It
+is not a claim that every one exists today: the NORDIC-arm deletion of
+2026-08-26 (see [NORDIC arm (retired)](#nordic-arm-retired)) removed every
+24.1.1-derived downstream tree, and this page does not track which of the
+analysis trees (`glmsingle/`, `glmsingle_nat/`, `pattern_similarity/`,
+`srm_stimulus_space/`, `qc/`, `qc_review/`, `preprocessing_qc/`) have since
+been regenerated. The catalog's `datasets` table is the authority on which
+trees exist and at what pipeline version.
+
 ```
 derivatives/
 ├── fmriprep/               # fMRIPrep preprocessed data (see version note below)
-├── fmriprep_nordic/        # fMRIPrep run on NORDIC-denoised BOLD
-├── nordic/                 # Raw NORDIC denoising outputs (pre-fMRIPrep)
 ├── mriqc/                  # MRIQC quality metrics and HTML reports
 ├── preprocessing_qc/       # Per-run QC decision records (auto-stubs; see below)
 ├── qc_review/              # HTML QC dashboards and BOLD QC benchmarks
@@ -30,9 +37,7 @@ derivatives/
 ├── hsf/                    # Hippocampal subfield segmentation — HSF (Poiret et al.)
 ├── hsf_oblcor/             # HSF using oblique-coronal T2w acquisition
 ├── glmsingle/              # GLMsingle single-trial betas, TB tasks
-├── glmsingle_nordic/       # GLMsingle betas, TB tasks, NORDIC input
 ├── glmsingle_nat/          # GLMsingle betas, NAT tasks
-├── glmsingle_nat_nordic/   # GLMsingle betas, NAT tasks, NORDIC input
 ├── pattern_similarity/     # Pattern-similarity benchmark results
 ├── srm_stimulus_space/     # Shared-response-model stimulus-space analyses
 ├── stimuli_features/       # Computational stimulus features (see stimuli_features.md)
@@ -41,15 +46,18 @@ derivatives/
 
 **Pipeline versions.** The derivative trees on disk record their own
 provenance in `dataset_description.json` — read it there rather than trusting
-a number quoted in prose. At the time of writing, `fmriprep/` and
-`fmriprep_nordic/` were both produced with **fMRIPrep 24.1.1** and `mriqc/`
-with **MRIQC 24.1.0**.
+a number quoted in prose. `fmriprep/` is **fMRIPrep 25.2.5** output; `mriqc/`
+was produced with **MRIQC 24.1.0**.
 
-> **Version note.** The project standard for *new* fMRIPrep runs moved to
-> **25.2.5 LTS** in August 2026, with an optional FreeSurfer 8 external-recon
-> stage. Existing derivatives have **not** been reprocessed — everything on
-> disk today is still 24.1.1 output. Any reprocessing campaign will be noted
-> here when it happens.
+> **Version note.** A re-preprocessing campaign finished **2026-08-26**.
+> `derivatives/fmriprep/` now holds fMRIPrep **25.2.5** output, with external
+> FreeSurfer **8.2.0** recons, for every functional run of the BIDSified
+> subjects at that date (sub-03 through sub-07). **No 24.1.1 output exists
+> anywhere in the dataset.** The 25.2.5 tree emits native func-space BOLD
+> (the `func` output space, no `space-` entity) alongside
+> `MNI152NLin2009cAsym res-2` and `fsaverage6`; see
+> [Output Spaces](preprocessing-spaces.md). For runs added after the
+> campaign, query the catalog rather than assuming coverage.
 
 **Trees removed since earlier versions of this page:** `bids_validation/`
 (deleted 2026-08 after review; 256 GB) and `fmriprep_pre022426/` (archived
@@ -65,7 +73,7 @@ BIDS raw (NIfTI + JSON + events TSV)
     │
     ├──▶ MRIQC (quality metrics, outlier detection)
     │
-    ├──▶ fMRIPrep / fMRIPrep+NORDIC (registration, distortion correction, confounds)
+    ├──▶ fMRIPrep (registration, distortion correction, confounds)
     │        │
     │        ├──▶ glmsingle* (single-trial betas)
     │        ├──▶ pattern_similarity/, srm_stimulus_space/ (analyses)
@@ -80,7 +88,7 @@ BIDS raw (NIfTI + JSON + events TSV)
 
 - MRIQC and fMRIPrep run in parallel, producing complementary QA output.
 - Downstream analysis trees (`glmsingle*`, `pattern_similarity/`,
-  `srm_stimulus_space/`) read `fmriprep/` or `fmriprep_nordic/` **directly**.
+  `srm_stimulus_space/`) read `fmriprep/` **directly**.
 - `derivatives/ready/` — the "analysis-ready streams" layer — is a **design
   that has not been implemented**. The directory does not exist and no stream
   cleaner has run. See
@@ -159,35 +167,16 @@ derivatives/functional_rois/
             └── ...
 ```
 
-## fMRIPrep (NORDIC)
+## NORDIC arm (retired)
 
-`fmriprep_nordic/` contains a parallel fMRIPrep run using NORDIC-denoised BOLD
-as input (see `nordic/` below). Structure mirrors `fmriprep/` exactly, and both
-trees are complete for the BIDSified subjects.
-
-Choosing between them is currently a **path choice made by the consumer** —
-there is no per-run source flag anywhere in the dataset (an earlier version of
-this page said the QC decisions file carried one; it does not). As of 2026-08,
-new analyses default to the non-NORDIC `fmriprep/` tree. The two variants have
-been benchmarked against each other for both trial-based and naturalistic
-data; derivative trees carrying a `_nordic` suffix are the NORDIC-input arm of
-those comparisons.
-
-## NORDIC
-
-Raw outputs from the NORDIC thermal noise denoising step, applied to BOLD data
-prior to fMRIPrep. Each run produces a denoised NIfTI (`.nii.gz`) and a
-diagnostics file (`.mat`).
-
-```
-derivatives/nordic/
-└── sub-03/
-    └── ses-04/
-        └── func/
-            ├── sub-03_ses-04_task-TBencoding_run-01_bold.nii.gz
-            ├── sub-03_ses-04_task-TBencoding_run-01_bold.mat
-            └── ...
-```
+The dataset previously carried a parallel NORDIC-denoised preprocessing arm:
+`nordic/` (raw NORDIC outputs) and `fmriprep_nordic/` (fMRIPrep run on the
+denoised BOLD), with `_nordic`-suffixed GLMsingle trees downstream. NORDIC
+retention was dissolved on 2026-08-25 and those trees were **deleted on
+2026-08-26**, together with every other 24.1.1-derived downstream tree. The
+default (and only) preprocessed tree is `derivatives/fmriprep/`. There was
+never a per-run NORDIC source flag anywhere in the dataset. Re-running NORDIC
+on the new preprocessing is recorded as a "later" todo, not a plan.
 
 ## QC Review
 
@@ -267,6 +256,7 @@ grid. See [Computational Feature Extraction](stimuli_features.md).
 
 ---
 
-*Tree listing on this page verified against the filesystem on 2026-08-20.
-Per-subject completeness is deliberately not asserted here — query the
-catalog.*
+*Tree listing on this page verified against the filesystem on 2026-08-20;
+derivative-tree and version claims updated 2026-09-05 from the
+reprocessing-campaign record. Per-subject completeness is deliberately not
+asserted here — query the catalog.*

@@ -15,8 +15,7 @@ nav_order: 4
 > [Layer 1](#layer-1-shared-base) for exactly what is on disk).
 >
 > Do not write analysis code against the `ready/` paths on this page. To use
-> preprocessed BOLD today, read `derivatives/fmriprep/` or
-> `derivatives/fmriprep_nordic/` directly — see
+> preprocessed BOLD today, read `derivatives/fmriprep/` directly — see
 > [Derivatives & Preprocessing](derivatives.md) and
 > [Output Spaces](preprocessing-spaces.md).
 
@@ -32,9 +31,9 @@ Status legend used below:
 
 ## Overview
 
-The intended design is a two-layer pipeline taking fMRIPrep (optionally
-NORDIC-denoised) output and producing analysis-ready data for three analysis
-types, all sharing a single quality-control layer.
+The intended design is a two-layer pipeline taking fMRIPrep output and
+producing analysis-ready data for three analysis types, all sharing a single
+quality-control layer.
 
 ```
 Layer 1 — Shared base (fMRIPrep outputs + QC decisions)   [PARTIAL]
@@ -48,7 +47,7 @@ Layer 2 — Stream-specific cleaning                         [PLANNED — nothin
 **Design principles** (these are the rationale for the design; they are not
 claims about existing data):
 
-- QC decisions (run exclusions, bad TRs, NORDIC choice) are to be made **once**
+- QC decisions (run exclusions, bad TRs) are to be made **once**
   at layer 1 and propagated to all streams, so that comparisons across analysis
   types rest on an identical QC substrate.
 - The BOLD timeseries would **never be modified** for the GLMSingle stream —
@@ -73,11 +72,13 @@ originally described, and **no human review has been recorded for any run**.
 
 ### What is on disk
 
-`derivatives/preprocessing_qc/sub-XX/` holds **one JSON per BOLD run** —
-203 runs each for sub-03, sub-04 and sub-05 (609 total), written 2026-04 by
-`mmmdata/scripts/generate_qc_stubs.py` from `fmriprep_nordic` confounds.
+`derivatives/preprocessing_qc/sub-XX/` holds **one JSON per BOLD run**,
+written 2026-04 by `mmmdata/scripts/generate_qc_stubs.py` from the confounds
+of the since-deleted `fmriprep_nordic/` tree. Whether this tree survived the
+2026-08-26 deletion of 24.1.1-derived trees is a catalog question (see
+[Derivatives](derivatives.md)); query it for what is present.
 
-Every one of those 609 records is an **auto-generated stub**
+Every one of those records is an **auto-generated stub**
 (`"reviewer": "auto-stub"`). None reflects a human judgement. Treat the
 dataset as **not yet QC-reviewed**.
 
@@ -129,10 +130,12 @@ implemented. Framewise displacement is available per run from the fMRIPrep
 confounds TSVs in the meantime.
 
 **NORDIC:** the design called for a per-run flag selecting the NORDIC or
-original source. No such flag exists. Both `fmriprep/` and `fmriprep_nordic/`
-are complete for all three subjects, so consumers currently choose a tree by
-path. As of 2026-08, new analyses default to the **non-NORDIC** `fmriprep/`
-tree.
+original source. No such flag ever existed. The NORDIC arm was retired:
+retention was dissolved 2026-08-25 and `nordic/`, `fmriprep_nordic/` and their
+downstream trees were deleted 2026-08-26. The only preprocessed tree is
+`fmriprep/` (fMRIPrep 25.2.5, re-preprocessed in the campaign that finished
+2026-08-26). Re-running NORDIC later is a recorded todo, not a plan. See
+[Derivatives](derivatives.md#nordic-arm-retired).
 
 ---
 
@@ -155,8 +158,8 @@ localizers (fLoc, motor, auditory, tone)
   per outlier TR
 - `*_desc-outliers_mask.tsv` — boolean mask of bad TRs
 
-**Would NOT do:** modify the BOLD NIfTI. The source BOLD (fMRIPrep or NORDIC
-fMRIPrep) would be read directly by GLMSingle or the localizer GLM.
+**Would NOT do:** modify the BOLD NIfTI. The source BOLD (fMRIPrep) would be
+read directly by GLMSingle or the localizer GLM.
 
 **Confound strategy (36-parameter + spikes):**
 - 24 motion parameters (Friston 24: 6 realignment params + derivatives +
@@ -239,13 +242,12 @@ introduced anticorrelations. Deferred to when FC analyses begin.
 
 ## Filesystem layout — planned
 
-> Everything under `ready/` in this tree is **PLANNED**. Only `fmriprep/`,
-> `fmriprep_nordic/` and `preprocessing_qc/` exist today.
+> Everything under `ready/` in this tree is **PLANNED**. `fmriprep/` exists;
+> for `preprocessing_qc/` see [Layer 1](#layer-1-shared-base).
 
 ```
 derivatives/
-├── fmriprep/                     # BUILT — original fMRIPrep outputs
-├── fmriprep_nordic/              # BUILT — NORDIC fMRIPrep outputs
+├── fmriprep/                     # BUILT — fMRIPrep 25.2.5 outputs
 ├── preprocessing_qc/             # PARTIAL — auto-stubs only, no human review
 │   └── sub-XX/
 │       └── sub-XX_ses-YY_task-ZZZ[_run-NN]_bold_decision.json
@@ -269,8 +271,8 @@ derivatives/
             └── *_desc-outliers_mask.tsv
 ```
 
-Brain masks would not be duplicated — consumers read them from `fmriprep/` or
-`fmriprep_nordic/` directly (same space, same subject).
+Brain masks would not be duplicated — consumers read them from `fmriprep/`
+directly (same space, same subject).
 
 ---
 
@@ -296,14 +298,14 @@ Not included by default: global signal (anticorrelations), mean WM/CSF signals
 
 1. **Whether to build layer 2 at all in this form.** The streams have been
    parked since the design was written; ad-hoc analyses (GLMSingle, pattern
-   similarity, ISC, SRM) have instead read `fmriprep*/` directly. Any revival
+   similarity, ISC, SRM) have instead read `fmriprep/` directly. Any revival
    should confirm the three-stream split still matches how the data are
    actually being used.
 
-2. **NORDIC for NAT sessions.** Both fMRIPrep variants are complete for all
-   three subjects and have been benchmarked. As of 2026-08, new analyses
-   default to the non-NORDIC tree; a decision to retire the NORDIC arm
-   entirely has not been recorded.
+2. **NORDIC.** Resolved for now: the NORDIC arm was retired and its trees
+   deleted on 2026-08-26 (see [Layer 1](#layer-1-shared-base)). Re-running
+   NORDIC on the 25.2.5 preprocessing is a recorded "later" todo, not a plan;
+   any stream design should assume the single `fmriprep/` tree.
 
 3. **T1w (native) space output.** Desirable for analyses requiring native
    resolution (HippUnfold, sub-millimetre ROI work). Deferred on disk-space
@@ -314,4 +316,6 @@ Not included by default: global signal (anticorrelations), mean WM/CSF signals
 
 ---
 
-*Dataset claims on this page verified against the filesystem on 2026-08-20.*
+*Dataset claims on this page verified against the filesystem on 2026-08-20;
+derivative-tree and version claims updated 2026-09-05 from the
+reprocessing-campaign record.*

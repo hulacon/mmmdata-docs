@@ -7,21 +7,20 @@ nav_order: 5
 
 # Output Spaces & Preprocessing Steps
 
-> **Two of the three spaces below exist.** As of **2026-08-20**,
-> `MNI152NLin2009cAsym res-2` and `fsaverage6` are present for every
-> preprocessed run in **both** `fmriprep/` and `fmriprep_nordic/`.
-> The **`func` (native acquisition grid) space has not been produced** —
-> there are zero such files in either tree. It is described here because the
-> post-hoc script that would generate it exists and the design decisions
-> behind it (notably the STC choice) are settled; it has simply never been
-> run. See [`func` — native acquisition grid](#func--native-acquisition-grid).
+> **All three spaces below exist.** The re-preprocessing campaign that
+> finished **2026-08-26** produced fMRIPrep **25.2.5** output in
+> `derivatives/fmriprep/` with `func` (native acquisition grid),
+> `MNI152NLin2009cAsym res-2` and `fsaverage6` for every run it covered.
+> fMRIPrep 25.2.5 writes the `func` space directly, so the earlier post-hoc
+> resampling path is retired. The former `fmriprep_nordic/` tree was deleted
+> on the same date (see [Derivatives](derivatives.md#nordic-arm-retired)).
+> Query the catalog for which runs are covered.
 
 This page describes three output spaces. Each
 space applies a different chain of spatial transforms, but all share the
-same upstream steps (NORDIC denoising, slice timing correction, head
-motion estimation, fieldmap estimation, coregistration estimation). The
-spaces differ only in **which transforms are applied at the final
-resampling step**.
+same upstream steps (slice timing correction, head motion estimation,
+fieldmap estimation, coregistration estimation). The spaces differ only in
+**which transforms are applied at the final resampling step**.
 
 ## Shared upstream processing
 
@@ -30,7 +29,6 @@ spaces:
 
 | Step | Tool | Description |
 |------|------|-------------|
-| NORDIC denoising | MATLAB `nordic_denoise.m` | Thermal noise suppression on complex-valued data, applied before fMRIPrep. Produces a denoised BOLD NIfTI in `derivatives/nordic/bids_input/`. **Applies to the `fmriprep_nordic/` tree only** — `fmriprep/` is preprocessed from the original BOLD. |
 | Slice timing correction | AFNI `3dTshift` | Temporal interpolation to align all slices to the middle of the TR (t = TR/2). See [STC note](#slice-timing-correction) below. |
 | Head motion correction (HMC) | FSL MCFLIRT | Per-volume rigid-body (6 DOF) alignment to a reference volume (boldref). Produces `from-orig_to-boldref_desc-hmc_xfm.txt`. |
 | Susceptibility distortion correction (SDC) | SDCFlows (pepolar) | B0 fieldmap estimated from AP/PA EPI pairs; stored as B-spline coefficients (`desc-coeff_fieldmap.nii.gz`). |
@@ -42,23 +40,19 @@ spaces:
 
 ### `func` — Native acquisition grid
 
-> **Status: NOT PRODUCED.** No `func`-space BOLD exists in `fmriprep/` or
-> `fmriprep_nordic/`. The generator
-> (`mmmdata/scripts/resample_bold_to_func.py`, plus its `.sbatch` wrapper)
-> is written and must run inside the fMRIPrep container, but has not been
-> run on any subject. The table below describes what it would produce.
+Written directly by fMRIPrep 25.2.5 (the `func` output space).
 
 | Property | Value |
 |----------|-------|
 | Grid | Run's original EPI grid (124 × 124 × 69) |
-| Voxel size | ~1.8 × 1.8 × 2.0 mm (acquisition resolution) |
+| Voxel size | 1.7 mm isotropic (acquisition resolution; see [MRI Sequences](mri-sequences.md)) |
 | Transforms applied | HMC + SDC |
 | Transforms NOT applied | Coregistration, spatial normalization |
-| STC | See [note below](#slice-timing-correction) |
+| STC | Yes (AFNI 3dTshift) — see [note below](#slice-timing-correction) |
 | BIDS filename | `{prefix}_desc-preproc_bold.nii.gz` (no `space-` entity) |
 | Primary use | Within-subject voxelwise analyses (GLMsingle), single-trial beta estimation |
 
-The `func` space would preserve the native acquisition grid with zero
+The `func` space preserves the native acquisition grid with zero
 interpolation-induced smoothing beyond the single HMC+SDC resampling
 step. Each run has its own grid — cross-run alignment requires the
 cached coregistration transforms.
@@ -95,12 +89,9 @@ mesh. Subcortical structures are not represented.
 
 ## Summary matrix
 
-Columns marked *(not produced)* describe intent, not files on disk.
-
-| | func *(not produced)* | MNI res-2 | fsaverage6 |
+| | func | MNI res-2 | fsaverage6 |
 |---|:---:|:---:|:---:|
-| NORDIC denoising (`fmriprep_nordic/` only) | ✓ | ✓ | ✓ |
-| Slice timing correction | * | ✓ | ✓ |
+| Slice timing correction | ✓ | ✓ | ✓ |
 | Head motion correction | ✓ | ✓ | ✓ |
 | Susceptibility distortion correction | ✓ | ✓ | ✓ |
 | Coregistration to T1w | — | ✓ | ✓ |
@@ -109,37 +100,29 @@ Columns marked *(not produced)* describe intent, not files on disk.
 | Interpolation steps | 1 | 1 | 1 + surface |
 | Cross-run alignment | via cached xfms | intrinsic | intrinsic |
 | Cross-subject alignment | no | yes | yes |
-| **Exists on disk** | **no** | **yes** | **yes** |
-
-\* See [STC note](#slice-timing-correction) below.
+| **Exists on disk** | **yes** | **yes** | **yes** |
 
 ## Slice timing correction
 
-STC is applied in the MNI and fsaverage6 spaces (produced by fMRIPrep,
-which runs AFNI `3dTshift` when `SliceTiming` metadata is present).
+STC is applied by fMRIPrep in all three output spaces, including `func`
+(fMRIPrep runs AFNI `3dTshift` when `SliceTiming` metadata is present, before
+the final resampling step, so every output space inherits it).
 
-For the `func` space **post-hoc backfill** (existing runs resampled via
-`resample_bold_to_func.py`), STC is intentionally skipped:
+An earlier version of this page described a `func` space produced by a
+post-hoc resampling script with STC intentionally skipped, on the reasoning
+that GLMsingle's per-voxel HRF fitting absorbs slice-timing delays and that
+STC's temporal interpolation can reduce tSNR for single-trial estimation. That
+path is retired: fMRIPrep 25.2.5 writes `func` directly, and no non-STC'd
+BOLD exists on disk. Producing one would require a separate run with
+`--ignore slicetiming`.
 
-- GLMsingle fits per-voxel HRFs that absorb slice-timing delays
-- STC's temporal interpolation can reduce tSNR for single-trial estimation
-- The acquisition TR (1.5 s) is short enough that the HRF shape change
-  across slices is modest relative to per-voxel HRF fitting flexibility
-
-For **future fMRIPrep runs** (new subjects/sessions), fMRIPrep applies
-STC to all output spaces including `func`. To produce non-STC'd func
-output for new data, either use `--ignore slicetiming` or run the
-post-hoc script.
-
-**Follow-up:** An empirical comparison of GLMsingle voxel reliability
-with and without STC is planned to validate this decision.
+**Open question:** whether STC helps or hurts GLMsingle voxel reliability on
+this dataset has not been tested empirically. That comparison remains open; it
+is not a decision.
 
 ## Per-run transform files
 
-Paths below use `fmriprep_nordic/` for illustration; `fmriprep/` has the same
-structure and the same transform files.
-
-Each BOLD run in `fmriprep_nordic/{sub}/{ses}/func/` includes cached
+Each BOLD run in `fmriprep/{sub}/{ses}/func/` includes cached
 transforms that can be used to move between spaces:
 
 | File | Description |
@@ -150,7 +133,7 @@ transforms that can be used to move between spaces:
 | `*_desc-hmc_boldref.nii.gz` | Motion-corrected reference volume |
 | `*_desc-coreg_boldref.nii.gz` | Coregistered reference volume |
 
-Fieldmap coefficients are in `fmriprep_nordic/{sub}/{ses}/fmap/`:
+Fieldmap coefficients are in `fmriprep/{sub}/{ses}/fmap/`:
 
 | File | Description |
 |------|-------------|
@@ -163,7 +146,7 @@ one for retrieval/resting runs (`B0mapretrievalXXX`). The mapping from
 BOLD run to fieldmap is encoded in the `from-boldref_to-B0map*` filename.
 
 The T1w → MNI warp is computed during anatomical preprocessing and
-stored in `fmriprep_nordic/{sub}/anat/`.
+stored in `fmriprep/{sub}/anat/`.
 
 ## Fieldmap-to-run mapping
 
@@ -183,9 +166,11 @@ self-documenting.
 
 ## fMRIPrep version
 
-The outputs described here were produced with **fMRIPrep 24.1.1**. The project
-standard for new runs moved to **25.2.5 LTS** in August 2026 (with an optional
-FreeSurfer 8 external-recon stage); existing derivatives have not been
-reprocessed. Check `dataset_description.json` in the tree you are reading.
+The outputs described here were produced with **fMRIPrep 25.2.5** (external
+FreeSurfer 8.2.0 recons) in the re-preprocessing campaign that finished
+2026-08-26. No 24.1.1 output remains anywhere in the dataset. Check
+`dataset_description.json` in the tree you are reading.
 
-*Space inventory on this page verified against the filesystem on 2026-08-20.*
+*Space inventory on this page verified against the filesystem on 2026-08-20;
+space, STC, voxel-size and version claims updated 2026-09-05 from the
+reprocessing-campaign record.*
