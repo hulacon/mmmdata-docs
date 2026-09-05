@@ -38,9 +38,9 @@ study.
 
 ## COCO Annotations
 
-All 1,000 shared images originate from the MS-COCO `train2017` split. COCO
-annotations (captions and object instances) have been extracted for these images
-and stored in two CSV files.
+All 1,000 shared images originate from MS-COCO 2017 (the `cocoSplit` column
+records train or val per image). COCO annotations (captions and object
+instances) have been extracted for these images and stored in two CSV files.
 
 **`coco_annotations.csv`** — one row per image (1,000 rows):
 
@@ -85,8 +85,9 @@ keyed by `stimulus_id`. See
 [Computational Stimulus Features](stimuli_features.md) for the schema.
 
 The pre-0.6.0 `viz2psy_scores.csv` (one wide row per image, ~2,900 columns,
-indexed by `filename`) is **superseded** — it predates the §4.1 column
-renames and is queued for deletion.
+indexed by `filename`) was **deleted 2026-08-23** — it predated the §4.1
+column renames. See the legacy note on
+[Computational Stimulus Features](stimuli_features.md).
 
 Features extracted per image include:
 

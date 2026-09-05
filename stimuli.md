@@ -47,14 +47,15 @@ stimuli/
 
 ## Computational Image Features (viz2psy)
 
-All visual stimuli (shared1000 images, movie frames, and movie cue images) are
-being processed with [viz2psy](https://github.com/hulacon/viz2psy), a toolbox
-that extracts psychological and perceptual features from images and video. Output
-includes ~2,900 features per image spanning memorability, emotion, scene
-categorization, low-level statistics, object detection, saliency, aesthetics,
-semantic embeddings (CLIP, DINOv2), spatial frequency, and captioning. Each
-output CSV is accompanied by a `.meta.json` sidecar documenting feature
-definitions and provenance.
+All visual stimuli (shared1000 images, movie frames, and movie cue images) have
+been processed with [viz2psy](https://github.com/hulacon/viz2psy), a toolbox
+that extracts psychological and perceptual features from images and video. The
+extraction campaign completed 2026-08-23. Output covers memorability, emotion,
+scene categorization, low-level statistics, object detection, saliency,
+aesthetics, semantic embeddings (CLIP, DINOv2), spatial frequency, and
+captioning, one CSV per model with a `.meta.json` sidecar documenting feature
+definitions and provenance. See
+[Computational Stimulus Features](stimuli_features.md) for the store layout.
 
 ## Stimulus Assignment
 

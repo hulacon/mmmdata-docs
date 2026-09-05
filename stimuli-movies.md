@@ -55,6 +55,11 @@ Each session contains 6–8 movies:
 - Sessions 2–10 also include 2 **carry-over** movies from the prior session
   (positions 7–8 at recall) that are recalled but not re-viewed
 
+> **Unverified:** the per-session counts above are approximate. Taken
+> literally (~6 new films × 10 sessions + 2 recurring) they give 62 titles,
+> but the stimulus registry has 60. The exact schedule is
+> `MMM_movies_Sheet1.csv` / the stimulus registry, not this list.
+
 ## Movie Schedule Metadata
 
 `MMM_movies_Sheet1.csv` columns:
@@ -99,13 +104,12 @@ grid, `movies_audio_frames_features.parquet` for acoustics, and the
 transcript, caption, and annotation groups alongside them. See
 [Computational Stimulus Features](stimuli_features.md).
 
-The pre-0.6.0 per-movie `{Title}_scores.csv` under `movies/viz2psy_scores/`
-is **superseded** — wide, indexed by `time` alone, and using the column names
-viz2psy 0.6.0 renamed. It is queued for deletion.
-- **`{Title}_scores_dashboard.html`** — interactive visualization of features over time
-- **`{Title}_scores_frames/`** — extracted frame images (JPG)
-
-Cue images are scored separately in a consolidated cue output file.
+The pre-0.6.0 per-movie `{Title}_scores.csv` under `movies/viz2psy_scores/`,
+together with its `{Title}_scores_dashboard.html` files and
+`{Title}_scores_frames/` directories and the consolidated cue-score file, was
+**deleted 2026-08-23**. Those files were wide, indexed by `time` alone, and
+used the column names viz2psy 0.6.0 renamed. See the legacy note on
+[Computational Stimulus Features](stimuli_features.md).
 
 See the [viz2psy documentation](https://github.com/hulacon/viz2psy) for full
 feature definitions.

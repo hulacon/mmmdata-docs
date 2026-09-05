@@ -12,8 +12,8 @@ nav_order: 2
 - **Count**: 1,000 words × 4 speakers = 4,000 audio files
 - **Format**: MP3
 - **Naming**: `{word}_{voice}.mp3` (e.g., `cabin_shimmer.mp3`)
-- **Generation**: Text-to-speech via OpenAI API (GPT-4 Turbo model),
-  generated November 2023
+- **Generation**: OpenAI text-to-speech API (voices echo, nova, onyx,
+  shimmer), generated November 2023
 
 ## Speakers
 
