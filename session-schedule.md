@@ -18,7 +18,7 @@ Each subject follows a canonical session schedule. Minor deviations are expected
 | **ses-19 to ses-28** | Naturalistic (NAT) | Repeated naturalistic memory paradigm: encoding, retrieval, math, resting |
 | **ses-28** | Anatomy repeat | Also includes a second anatomical + DWI acquisition |
 | **ses-29** | Behavioral only | Out-of-scanner behavioral session (no imaging) |
-| **ses-30** | Final memory | Final memory tests with unique task IDs (TBD), plus makeup localizers if needed |
+| **ses-30** | Final memory | Final memory tests (`FIN*` task labels, see [Final Sessions](tasks-final-session.md)), plus makeup localizers if needed |
 
 ## Known Deviations from Canonical Schedule
 
