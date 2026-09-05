@@ -37,9 +37,9 @@ mmmsourcedata/
 │   │   └── other/        # Miscellaneous session files
 ├── sub-04/
 ├── sub-05/
-├── sub-06/           # Data collection in progress (not yet BIDSified)
-├── sub-07/           # Data collection in progress (not yet BIDSified)
-└── sub-08/           # Data collection in progress (not yet BIDSified)
+├── sub-06/           # Data collection in progress (BIDSified as data arrive)
+├── sub-07/           # Data collection in progress (BIDSified as data arrive)
+└── sub-08/           # Data collection in progress
 ```
 
 - Pilot subjects (sub-01, sub-02) have DICOMs in `archive/pilot/` but are not BIDSified.
