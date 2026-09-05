@@ -59,9 +59,15 @@ sub-03/ses-04/func/
 
 | Recording | Column | Sampling (Hz) | Source |
 |-----------|--------|---------------|--------|
-| `recording-cardiac` | `cardiac` | 1000 | Siemens PMU |
-| `recording-pulse` | `pulse` | 1000 | Siemens PMU |
-| `recording-respiratory` | `respiratory` | 1000 | Siemens PMU |
+| `recording-cardiac` | `cardiac` | 1000 | Siemens PMU (ECG) |
+| `recording-pulse` | `cardiac` | 500 | Siemens PMU (pulse oximeter) |
+| `recording-respiratory` | `respiratory` | 125 | Siemens PMU (respiratory belt) |
+
+Sampling rates and column names are those emitted by the converter
+(`physio_dcm.py` in the mmmdata repo, derived from the PMU `SampleTime`
+header). The pulse-oximeter file uses the BIDS `cardiac` column name because
+pulse oximetry measures cardiac rhythm. Check `SamplingFrequency` in each
+`_physio.json` sidecar rather than relying on this table.
 
 Scanner physio is most consistently available in trial-based sessions (ses-04
 through ses-18). Availability varies by session and subject depending on
@@ -82,7 +88,11 @@ sub-03/ses-19/func/
 
 | Recording | Columns | Sampling (Hz) | Source |
 |-----------|---------|---------------|--------|
-| `recording-eye` | `eye1_x_coordinate`, `eye1_y_coordinate`, `eye1_pupil_size` | 1000 | SR Research EyeLink |
+| `recording-eye` | `eye1_x_coordinate`, `eye1_y_coordinate`, `eye1_pupil_size` | 500 or 1000 (see below) | SR Research EyeLink |
+
+The eye-tracker sampling rate is not uniform across sessions: some sessions
+were recorded at 500 Hz before a switch to 1000 Hz. The rate is recorded per
+file in the `_physio.json` sidecar (`SamplingFrequency`); read it from there.
 
 Eye-tracking data is trimmed to the scan window defined by scanner triggers
 (input=255). The `StartTime` in the JSON sidecar corresponds to the first
