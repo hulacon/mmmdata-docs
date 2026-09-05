@@ -44,6 +44,9 @@ Overview
 │   ├── preprocessing-spaces.md    # Output spaces & preprocessing steps
 │   └── bidsification.md           # BIDSification pipeline & conversion details
 │
+├── Quality & Compliance/
+│   └── quality-assurance.md       # QA procedure, IQMs, run-level decisions
+│
 ├── compliance-status.md           # BIDS compliance checklists
 ├── access.md                      # Data access & availability
 └── contributors.md                # Project team & affiliations
