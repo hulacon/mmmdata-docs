@@ -71,7 +71,8 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 - Original fLoc code: `sourcedata/shared/experiment_code/localizer/floc/` (Stigliani et al. V2.0, August 2015)
 - Updated version: `sourcedata/shared/experiment_code/localizer/floc_new/` (V3.0, August 2017; 12 stimuli per block)
 - Block-level timing in `.par` files; trial-level timing in detailed script files
-- BIDS `_events.tsv` files for fLoc are block-level (written 2026-08-21)
+- BIDS `_events.tsv` files for fLoc are block-level (written 2026-08-21; onsets corrected 2026-09-08)
+- **Timing origin:** the fLoc program starts on a scanner pulse, shows a 12 s countdown (`et_run_fLoc.m`, `countDown = 12`; 8 TRs at 1.5 s), and only then starts the clock its trial times are logged on. BIDS onsets therefore equal the logged times **plus 12 s**; a run is 208 volumes = 12 s countdown + 300 s of blocks. The logged scanner-trigger pulses sit at a fixed phase of the task clock and cannot reveal this whole-TR offset — only a fit to the BOLD can (see `mmmdata/src/python/raw2bids_converters/floc_events.py`).
 
 ### Data inventory
 Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
