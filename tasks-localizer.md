@@ -81,21 +81,38 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 
 ## Motor Localizer (task-motor)
 
-**Source:** Adapted from the motor localizer in Tang et al. (2023) / LeBel et al. (2023). The original protocol included a sixth "speak" (covert narrative) condition used to define Broca's area; the MMMData version omits this condition.
+**Source:** Adapted from the motor localizer in Tang et al. (2023) / LeBel et al. (2023), including the "speak" (covert narrative) condition used to define Broca's area.
+
+> *Corrected 2026-09-08.* This section previously said the MMMData version omits the "speak" condition and listed five conditions. It does not: the stimulus program's condition list and on-screen instructions both carry six, and every run presents five `speak` blocks. Verified against `localizer_motor.py` and all motor timing CSVs.
 
 **Citations:**
 - Tang, J., LeBel, A., Jain, S. et al. Semantic reconstruction of continuous language from non-invasive brain recordings. *Nature Neuroscience*, 26, 858–866 (2023). <https://doi.org/10.1038/s41593-023-01304-9>
 - LeBel, A., et al. A natural language fMRI dataset for voxelwise encoding models. *Scientific Data*, 10, 555 (2023). <https://doi.org/10.1038/s41597-023-02437-z>
 
 ### Design
-- Block design with 20-second blocks
-- 5 conditions: foot movement, mouth movement, saccade (eye movement), hand movement, and rest
-- 2 runs per subject, collected during ses-30 (final session)
-- Implemented in PsychoPy (both Builder `.psyexp` and hand-coded `.py` versions exist)
+- Block design, 20-second blocks; 30 blocks = 600.0 s per run, which exactly fills the acquisition
+- 6 conditions x 5 blocks each:
+
+  | Condition | On-screen cue | Instruction given to the participant |
+  |---|---|---|
+  | `hand` | hand | make small finger-drumming movements |
+  | `foot` | foot | make small foot and toe movements |
+  | `mouth` | mouth | make small nonsense vocalizations (e.g. "balabalabala") |
+  | `speak` | speak | self-generate a narrative without vocalization |
+  | `saccade` | saccade | look around for the duration of the task |
+  | `rest` | rest | rest with eyes open |
+
+- **The block order is frozen.** The program shuffles the condition list under a hardcoded seed, so every run of every subject presents the identical 30-block sequence. Two runs in a session are not independent orderings, and order effects are perfectly confounded across subjects. Do not treat the sequence as randomised.
+- **Timing origin:** the program waits on the scanner sync key and resets its clock immediately afterwards — no countdown, no lead-in, no `launchScan`. The task clock is the scan clock, so onsets need no shift.
+- Run counts differ by cohort: the first cohort ran two runs in the final session (BOLD carries a `run` entity); under the regularised protocol motor moved to the localizer sessions at one run per session (BOLD carries **no** `run` entity, though the source CSV filename still numbers runs per subject). Query the catalog for what exists.
+- Implemented in PsychoPy. Two versions exist in sourcedata and **only the hand-coded one produced the data** — the Builder `.psyexp`/`_lastrun.py` writes no timing CSV.
 
 ### Experiment code
-- PsychoPy Builder: `sourcedata/shared/experiment_code/localizer/other localizers/motor/motor.psyexp`
-- Hand-coded: `sourcedata/shared/experiment_code/final_cued_recall/final_cued_recall_localizers/localizers/motor/`
+- **Hand-coded (this is what ran):** `mmmsourcedata/shared/experiment_code/final_cued_recall/final_cued_recall_localizers/localizers/motor/localizer_motor.py` — waits on the sync key, resets the clock, presents the seeded block list, and writes the `*_timing.csv` the converter reads.
+- PsychoPy Builder (**not** the version that ran): `mmmsourcedata/shared/experiment_code/localizer/other localizers/motor/motor.psyexp` and its generated `.py`. Neither writes a timing CSV, and the Builder condition list is drawn with replacement rather than seeded — do not read the design off it.
+- Converter: `mmmdata/src/python/raw2bids_converters/localizer_events.py` (`convert_motor`)
+
+(Other paths in this file still carry the pre-migration `sourcedata/` prefix; they now live under `mmmsourcedata/`.)
 
 ### Data inventory
 Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
