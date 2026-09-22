@@ -40,6 +40,7 @@ derivatives/
 ├── glmsingle_nat/          # GLMsingle betas, NAT tasks
 ├── pattern_similarity/     # Pattern-similarity benchmark results
 ├── srm_stimulus_space/     # Shared-response-model stimulus-space analyses
+├── prf/                    # Population receptive field maps, pooled per subject (see below)
 ├── stimuli_features/       # Computational stimulus features (see stimuli_features.md)
 └── behavioral_analysis/    # Behavioral accuracy, d-prime, and learning analyses
 ```
@@ -76,6 +77,7 @@ BIDS raw (NIfTI + JSON + events TSV)
     ├──▶ fMRIPrep (registration, distortion correction, confounds)
     │        │
     │        ├──▶ glmsingle* (single-trial betas)
+    │        ├──▶ prf/ (pRF parameter maps from task-prf)
     │        ├──▶ pattern_similarity/, srm_stimulus_space/ (analyses)
     │        └──▶ preprocessing_qc/ (per-run QC decision records)
     │
@@ -249,6 +251,58 @@ sign-off yet. Treat the dataset as not yet QC-reviewed. Schema and the
 read/write API are documented on the
 [Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md) page.
 
+## pRF maps (`prf/`)
+
+Population receptive field parameter maps from the `task-prf` localizer
+([design](tasks-localizer.md#prf-task-prf)), one fit per subject. The tree is
+the *raw fits*: every voxel carries a value, no R² floor, no eccentricity mask,
+no partition between polarities. How to select from them is the consumer's
+decision, and `derivatives/prf/README.md` beside the maps lists the facts that
+decision needs. `dataset_description.json` and the per-file sidecars name the
+backend, its commit, the exact call, and which runs were pooled.
+
+**Method.** The fit is [analyzePRF](https://github.com/cvnlab/analyzePRF)
+(Kay et al. 2013, compressive spatial summation), called the way the Natural
+Scenes Dataset called it (`cvnlab/nsddatapaper`, `analysis_prf.m`): super-grid
+seed, 100 iterations, free exponent, default HRF, every voxel of the brain mask
+optimised, nothing gated. Fitted in fMRIPrep `space-T1w` on all six runs across
+the two localizer sessions — the three repetitions of each stimulus type
+(multibar, wedge-ring) averaged into one pseudo-run each after per-run
+percent-signal-change and polynomial detrending, the two pseudo-runs fitted
+jointly with their aperture sequences from `stimuli/prf`. No confound
+regression, matching analyzePRF and NSD. Fitted parameter *volumes* are then
+projected to `fsnative` following NSD's recipe (three cortical depths averaged;
+polar angle carried as cos/sin and recombined). A second fit on sign-flipped
+data gives the negative-pRF arm.
+
+**Layout.** Per subject: seven parameter maps per polarity as T1w volumes and
+as fsnative surfaces, plus a brain-viewer bundle.
+
+```
+derivatives/prf/
+├── dataset_description.json
+├── README.md                                   # consumer advisories
+└── sub-##/
+    ├── sub-##_task-prf_space-T1w_desc-<param>_prf.nii.gz       # <param> ∈ angle, eccentricity,
+    ├── sub-##_task-prf_space-T1w_desc-<param>_negprf.nii.gz    #   size, sigma, exponent, gain, R2
+    ├── sub-##_task-prf_space-T1w_{prf,negprf}.json             # runs pooled, backend, call, notes
+    ├── sub-##_task-prf_space-fsnative_hemi-{L,R}_desc-<param>_{prf,negprf}.shape.gii
+    ├── sub-##_task-prf_space-fsnative_{prf,negprf}.json
+    └── viz/                                     # brain-viewer bundles (mmmview)
+```
+
+Units: `angle` in degrees (0 = right horizontal meridian, counter-clockwise),
+`eccentricity`, `size` and `sigma` in degrees of visual angle, `R2` in percent
+variance explained. `size` is sigma/√n (NSD's `prf_size` convention), not raw
+sigma; `sigma` is written alongside. No retinotopic ROIs (V1/V2/V3) are
+delineated from these maps.
+
+**Tooling** (in `mmmdata/scripts/`): `prf_analyzeprf_export.py` →
+`prf_analyzeprf_fit.m` → `prf_analyzeprf_assemble.py`, driven by
+`fit_prf_analyzeprf.sbatch`; `project_prf_fsnative.py` and
+`build_brain_viewer.py prf` via `prf_postfit.sbatch`; apertures from
+`build_prf_apertures.py`.
+
 ## Stimulus features (`stimuli_features/`)
 
 Computational features for the three stimulus sets, on the Contract B 0.5 s
@@ -258,5 +312,5 @@ grid. See [Computational Feature Extraction](stimuli_features.md).
 
 *Tree listing on this page verified against the filesystem on 2026-08-20;
 derivative-tree and version claims updated 2026-09-05 from the
-reprocessing-campaign record. Per-subject completeness is deliberately not
+reprocessing-campaign record; `prf/` section added 2026-09-22. Per-subject completeness is deliberately not
 asserted here — query the catalog.*

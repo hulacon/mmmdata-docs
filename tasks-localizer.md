@@ -42,6 +42,8 @@ These labels are expected to remain unchanged.
 - Participants maintained fixation on a central dot that switched randomly between three colors (black, white, red) every 1–5 s and pressed a button at each color change
 - Stimulus frame rate: 15 Hz; pre-generated aperture matrices stored in MATLAB workspace
 
+**Fitted maps:** `derivatives/prf/` — see [Derivatives](derivatives.md#prf-maps-prf).
+
 ### Data inventory
 Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
 
