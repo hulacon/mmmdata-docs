@@ -13,7 +13,7 @@ Each subject follows a canonical session schedule. Minor deviations are expected
 | Session(s) | Phase | Purpose |
 |------------|-------|---------|
 | **ses-01** | Baseline | Anatomical (T1w, T2w), diffusion (DWI), resting-state fMRI |
-| **ses-02, ses-03** | Localizers | Functional localizer tasks (PRF, fLoc, auditory, tonotopy). No anatomy. |
+| **ses-02, ses-03** | Localizers | Functional localizer tasks (PRF, fLoc, auditory, tonotopy; motor too under the regularised protocol — see [Localizer Tasks](tasks-localizer.md)). No anatomy. |
 | **ses-04 to ses-18** | Trial-Based (TB) | Repeated cued-recall memory paradigm: encoding, retrieval, math, resting |
 | **ses-19 to ses-28** | Naturalistic (NAT) | Repeated naturalistic memory paradigm: encoding, retrieval, math, resting |
 | **ses-28** | Anatomy repeat | Also includes a second anatomical + DWI acquisition |
