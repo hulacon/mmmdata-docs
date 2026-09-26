@@ -30,6 +30,7 @@ longer exist anywhere in the dataset.
 - Task: "How well are you able to associate the word with the image?" Select 1 if it was not at all, 2 for somewhat, and 3 for very well.
 - Conditions: one pair presented once ("single"), one pair presented three times ("repeats"), sequence of pairs (x3) presented three times ("triplets"), and pairs presented three times every session ("super repeats")
 - The image was shown on the screen for 3s, followed by a fixation dot for 1.5s. A total of 183 image-word pairs were presented in each session.
+- Images were drawn square at **0.6 × screen height** (PsychoPy `height` units, full-screen). That is 648 × 648 px on a 1920 × 1080 display, the size the film-session logs record. The trial-based logs do not record the display size themselves. See [Movie Stimuli](stimuli-movies.md#on-screen-presentation) for how films compare.
 
 ## Cued Recall
 - Task: "Please retrieve the image/word associated with the word/image cue as vividly as possible, and rate the vividness of your memory." Select 1 for least vivid, 2 for somewhat vivid, and 3 for most vivid.

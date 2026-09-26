@@ -22,6 +22,32 @@ Short films (~4 minutes each) shown during naturalistic encoding sessions
 - **Movie cues**: 60 `.jpg` recall cue images in `movies/movie_cues/`, named
   `{Title}_cue.jpg` (see [Movie Cue Images](#movie-cue-images) below)
 
+## On-Screen Presentation
+
+Read from the stimulus program (`experiment_code/free_recall/free_recall_movies/`,
+column `adjusted_size` of its conditions files, drawn in `pix` units):
+
+- Every film was drawn **576 px tall at its own aspect ratio**, centred on a
+  black background. All but two of the 60 films are 16:9 (1024 × 576); the
+  exceptions are about 1.85:1 (1065 × 576) and 2.39:1 (1375 × 576). Frames were
+  never cropped or padded to a square.
+- The program requests a 1440 × 900 window, but it runs full-screen, and
+  PsychoPy uses the display's real size. The film-session logs report that
+  size as **1920 × 1080** ("User requested fullscreen with size [1440 900],
+  but screen is actually [1920, 1080]"). A film therefore filled about **53 %
+  of the screen height** (576 / 1080).
+- For comparison, the trial-based images were sized in `height` units
+  (0.6 × screen height; see [trial-based tasks](tasks-trial-based.md)), so an
+  image stood about 1.1× as tall as a film frame. A 16:9 film is 1.78× as
+  wide as it is tall.
+
+> **Unverified for later participants:** the 1920 × 1080 log lines exist
+> only in the film sessions of the first three participants. The display's
+> refresh rate changed between the third and fourth participants (60 → 59.95
+> Hz), so the screen size for later participants has not been confirmed.
+> Pixel sizes in `pix` units follow the real display, not the requested
+> window.
+
 ## Movie Cue Images
 
 During free recall, participants are prompted with a movie title. If they cannot
