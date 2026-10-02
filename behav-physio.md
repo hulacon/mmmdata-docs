@@ -44,13 +44,13 @@ directories, using the BIDS `_physio.tsv.gz` + `_physio.json` format.
 
 ### Scanner physiological monitoring
 
-Cardiac, pulse oximetry, and respiratory signals recorded by the Siemens PMU
-system during scanning. Present primarily in trial-based sessions.
+Scanner volume-trigger, pulse oximetry, and respiratory signals recorded by the
+Siemens PMU system during scanning. Present primarily in trial-based sessions.
 
 ```
 sub-03/ses-04/func/
-├── sub-03_ses-04_task-TBencoding_run-01_recording-cardiac_physio.tsv.gz
-├── sub-03_ses-04_task-TBencoding_run-01_recording-cardiac_physio.json
+├── sub-03_ses-04_task-TBencoding_run-01_recording-trigger_physio.tsv.gz
+├── sub-03_ses-04_task-TBencoding_run-01_recording-trigger_physio.json
 ├── sub-03_ses-04_task-TBencoding_run-01_recording-pulse_physio.tsv.gz
 ├── sub-03_ses-04_task-TBencoding_run-01_recording-pulse_physio.json
 ├── sub-03_ses-04_task-TBencoding_run-01_recording-respiratory_physio.tsv.gz
@@ -59,14 +59,19 @@ sub-03/ses-04/func/
 
 | Recording | Column | Sampling (Hz) | Source |
 |-----------|--------|---------------|--------|
-| `recording-cardiac` | `cardiac` | 1000 | Siemens PMU (ECG) |
+| `recording-trigger` | `trigger` | 1000 | Siemens PMU, ECG1 input (scanner volume trigger) |
 | `recording-pulse` | `cardiac` | 500 | Siemens PMU (pulse oximeter) |
 | `recording-respiratory` | `respiratory` | 125 | Siemens PMU (respiratory belt) |
 
 Sampling rates and column names are those emitted by the converter
 (`physio_dcm.py` in the mmmdata repo, derived from the PMU `SampleTime`
 header). The pulse-oximeter file uses the BIDS `cardiac` column name because
-pulse oximetry measures cardiac rhythm. Check `SamplingFrequency` in each
+pulse oximetry measures cardiac rhythm; it is the only cardiac signal in the
+dataset. The PMU's ECG1 input carries the scanner's volume trigger (a two-level
+signal switching at the TR), so it is named `recording-trigger` (renamed from
+`recording-cardiac` in dataset version 1.5.0). Only sub-03/04/05 have it.
+`StartTime` in every sidecar comes from the PMU log's own volume timestamps,
+not from the trigger channel. Check `SamplingFrequency` in each
 `_physio.json` sidecar rather than relying on this table.
 
 Scanner physio is most consistently available in trial-based sessions (ses-04

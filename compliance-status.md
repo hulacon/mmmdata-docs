@@ -39,7 +39,7 @@ where the check was actually run — see the note on each.*
       demographics (age, sex, handedness, vision, education, etc.)
 - [x] **Phenotype data**: `phenotype/vviq.tsv` and `phenotype/final_debriefing.tsv`
       with JSON sidecar dictionaries
-- [x] **Physiological recordings**: Scanner physio (`recording-cardiac`,
+- [x] **Physiological recordings**: Scanner physio (`recording-trigger`,
       `recording-pulse`, `recording-respiratory`) and eye-tracking
       (`recording-eye`) converted to BIDS `_physio.tsv.gz` format
 - [x] **Behavioral sidecar files**: `_beh.tsv` + `_beh.json` in `beh/` directories

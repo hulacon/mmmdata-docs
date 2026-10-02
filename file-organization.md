@@ -66,7 +66,7 @@ All NIfTI files are gzipped (`.nii.gz`). Every NIfTI has a paired JSON sidecar.
 |----------|----------|----------|-------|
 | `anat/` | `T1w.nii.gz`, `T2w.nii.gz` | `.json` | acq-MPR for T1w; acq-SPC and acq-oblcor for T2w |
 | `func/` | `bold.nii.gz`, `sbref.nii.gz` | `.json`, `_events.tsv`, `_events.json` | One set per task/run |
-| `func/` | `_physio.tsv.gz` | `_physio.json` | `recording-cardiac`, `recording-pulse`, `recording-respiratory`, or `recording-eye` |
+| `func/` | `_physio.tsv.gz` | `_physio.json` | `recording-trigger`, `recording-pulse`, `recording-respiratory`, or `recording-eye` |
 | `dwi/` | `dwi.nii.gz` | `.json`, `.bval`, `.bvec` | Four phase-encoding directions in ses-01/ses-28 |
 | `fmap/` | `epi.nii.gz` | `.json` (with `B0FieldIdentifier`) | AP/PA pairs, typically 2 runs per session |
 | `beh/` | `_beh.tsv` | `_beh.json` | Behavioral response files (e.g., TB2AFC in ses-04–18) |

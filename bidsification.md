@@ -83,7 +83,7 @@ appropriate converter.
 | behavioral_to_beh.py | behavioral_to_beh | Recognition/timeline CSVs | beh TSV | 51 |
 | localizer_events.py | localizer_events | Localizer CSVs | events TSV | 9 |
 | edf_to_physio.py | edf_to_physio | EyeLink EDF files | physio TSV.GZ (3 cols: x, y, pupil) | 73 |
-| physio_dcm.py | physio_dcm | Siemens PhysioLog DICOMs | physio TSV.GZ (cardiac, pulse, resp) | 232 |
+| physio_dcm.py | physio_dcm | Siemens PhysioLog DICOMs | physio TSV.GZ (trigger, pulse, resp) | 232 |
 | spoken_recall.py | *(standalone)* | ses-29 Whisper transcripts | beh TSV | in progress |
 
 `spoken_recall.py` is not dispatched by `run_all.py` — it is a standalone
@@ -189,7 +189,7 @@ Siemens PhysioLog DICOMs contain PMU waveform data embedded in DICOM private tag
 | INFO_ONLY | 372 | Metadata stubs only — no waveform data (connectivity issue) |
 
 **232 convertible** (COMPLETE + PARTIAL). Each produces 3 files:
-- `_recording-cardiac_physio.tsv.gz` + `.json` (ECG, 1000 Hz)
+- `_recording-trigger_physio.tsv.gz` + `.json` (ECG1 input = scanner volume trigger, 1000 Hz)
 - `_recording-pulse_physio.tsv.gz` + `.json` (pulse ox, 500 Hz)
 - `_recording-respiratory_physio.tsv.gz` + `.json` (resp belt, 125 Hz)
 
@@ -357,7 +357,7 @@ sub-XX/
       sub-XX_ses-YY_task-TBencoding_run-01_events.tsv          ← behavioral
       sub-XX_ses-YY_task-TBencoding_run-01_events.json         ← behavioral
       sub-XX_ses-YY_task-TBencoding_run-01_recording-eye_physio.tsv.gz     ← behavioral
-      sub-XX_ses-YY_task-TBencoding_run-01_recording-cardiac_physio.tsv.gz ← behavioral
+      sub-XX_ses-YY_task-TBencoding_run-01_recording-trigger_physio.tsv.gz ← behavioral
       sub-XX_ses-YY_task-TBencoding_run-01_recording-pulse_physio.tsv.gz   ← behavioral
       sub-XX_ses-YY_task-TBencoding_run-01_recording-respiratory_physio.tsv.gz ← behavioral
     beh/     ← behavioral (recognition, timeline)

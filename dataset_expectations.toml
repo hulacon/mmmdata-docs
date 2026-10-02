@@ -493,7 +493,7 @@ voxel_size = [1.798, 1.798, 2.0]
 # Physio expectations
 # ---------------------------------------------------------------------------
 [physio]
-recording_types = ["cardiac", "pulse", "respiratory"]
+recording_types = ["trigger", "pulse", "respiratory"]
 sampling_rate = 1000  # Hz
 # Ideally collected for all functional sessions except ses-01 (baseline anat +
 # single resting run, physio setup not yet established).
