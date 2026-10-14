@@ -32,7 +32,7 @@ extended with custom columns:
 | `n_volumes` | Number of volumes (4th dimension; 1 for 3D scans) |
 | `duration_s` | Scan duration in seconds |
 | `n_events` | Row count of matching `_events.tsv` (n/a if none) |
-| `physio_cardiac`, `physio_pulse`, `physio_respiratory` | Whether each physio channel exists |
+| `physio_trigger`, `physio_pulse`, `physio_respiratory` | Whether each physio recording exists (`trigger` is the scanner volume-trigger channel) |
 | `eyetracking` | Whether eyetracking recording exists |
 | `has_sbref`, `has_json`, `has_events_json` | Companion file presence |
 
@@ -65,7 +65,7 @@ counts, session counts, or per-pipeline completeness.
 
 `expectations/dataset.toml` (in the BIDS root) declares what the dataset
 *should* contain — expected tasks, run counts, volume counts, event
-structures, physio/eyetracking coverage, and roughly 100 documented
+structures, physio/eyetracking coverage, and the documented
 per-subject/session exceptions. It is ingested into the catalog by
 `mmmdata/scripts/catalog_expectations.py`; query the `resolution` view to
 compare declared expectations against what is actually present.
@@ -84,4 +84,4 @@ compare declared expectations against what is actually present.
 
 ---
 
-*Verified against the filesystem on 2026-08-20.*
+*Verified against the filesystem on 2026-10-14.*

@@ -7,16 +7,17 @@ nav_order: 5
 
 # Output Spaces & Preprocessing Steps
 
-> **All three spaces below exist.** The re-preprocessing campaign that
+> **All five spaces below exist.** The re-preprocessing campaign that
 > finished **2026-08-26** produced fMRIPrep **25.2.5** output in
 > `derivatives/fmriprep/` with `func` (native acquisition grid),
-> `MNI152NLin2009cAsym res-2` and `fsaverage6` for every run it covered.
+> `MNI152NLin2009cAsym res-2` and `fsaverage6` for every run it covered;
+> a later backfill added `T1w` and `fsnative` for the same runs.
 > fMRIPrep 25.2.5 writes the `func` space directly, so the earlier post-hoc
 > resampling path is retired. The former `fmriprep_nordic/` tree was deleted
 > on the same date (see [Derivatives](derivatives.md#nordic-arm-retired)).
 > Query the catalog for which runs are covered.
 
-This page describes three output spaces. Each
+This page describes five output spaces. Each
 space applies a different chain of spatial transforms, but all share the
 same upstream steps (slice timing correction, head motion estimation,
 fieldmap estimation, coregistration estimation). The spaces differ only in
@@ -45,7 +46,7 @@ Written directly by fMRIPrep 25.2.5 (the `func` output space).
 | Property | Value |
 |----------|-------|
 | Grid | Run's original EPI grid (124 × 124 × 69) |
-| Voxel size | 1.7 mm isotropic (acquisition resolution; see [MRI Sequences](mri-sequences.md)) |
+| Voxel size | 1.8 × 1.8 × 2.0 mm (acquisition resolution; 1.7 mm isotropic in the first participant's first two sessions; see [MRI Sequences](mri-sequences.md)) |
 | Transforms applied | HMC + SDC |
 | Transforms NOT applied | Coregistration, spatial normalization |
 | STC | Yes (AFNI 3dTshift) — see [note below](#slice-timing-correction) |
@@ -56,6 +57,20 @@ The `func` space preserves the native acquisition grid with zero
 interpolation-induced smoothing beyond the single HMC+SDC resampling
 step. Each run has its own grid — cross-run alignment requires the
 cached coregistration transforms.
+
+### `T1w` — Subject anatomical space
+
+| Property | Value |
+|----------|-------|
+| Grid | Acquisition resolution, on a brain-cropped grid aligned to the subject's T1w |
+| Voxel size | Same as `func` |
+| Transforms applied | HMC + SDC + coregistration |
+| STC | Yes (AFNI 3dTshift) |
+| BIDS filename | `{prefix}_space-T1w_desc-preproc_bold.nii.gz` |
+| Primary use | Within-subject analyses that pool runs or sessions on one grid, or use subject anatomy (hippocampal subfields, FreeSurfer ROIs) |
+
+All of a subject's runs share this grid, so runs pool without further
+resampling.
 
 ### `MNI152NLin2009cAsym:res-2` — Volumetric standard space
 
@@ -71,6 +86,16 @@ cached coregistration transforms.
 All runs are in a common volumetric space. Standard neuroimaging atlases
 (Schaefer, Glasser, Harvard-Oxford, etc.) apply directly without
 per-subject resampling.
+
+### `fsnative` — Subject surface space
+
+| Property | Value |
+|----------|-------|
+| Mesh | The subject's own FreeSurfer white/pial surfaces |
+| Transforms applied | HMC + SDC + coregistration + cortical surface projection |
+| STC | Yes (AFNI 3dTshift) |
+| BIDS filename | `{prefix}_hemi-{L,R}_space-fsnative_bold.func.gii` |
+| Primary use | Within-subject surface analyses at native vertex density |
 
 ### `fsaverage6` — Surface standard space
 
@@ -89,22 +114,22 @@ mesh. Subcortical structures are not represented.
 
 ## Summary matrix
 
-| | func | MNI res-2 | fsaverage6 |
-|---|:---:|:---:|:---:|
-| Slice timing correction | ✓ | ✓ | ✓ |
-| Head motion correction | ✓ | ✓ | ✓ |
-| Susceptibility distortion correction | ✓ | ✓ | ✓ |
-| Coregistration to T1w | — | ✓ | ✓ |
-| Spatial normalization (MNI) | — | ✓ | — |
-| Surface projection (fsaverage6) | — | — | ✓ |
-| Interpolation steps | 1 | 1 | 1 + surface |
-| Cross-run alignment | via cached xfms | intrinsic | intrinsic |
-| Cross-subject alignment | no | yes | yes |
-| **Exists on disk** | **yes** | **yes** | **yes** |
+| | func | T1w | MNI res-2 | fsnative | fsaverage6 |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Slice timing correction | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Head motion correction | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Susceptibility distortion correction | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Coregistration to T1w | — | ✓ | ✓ | ✓ | ✓ |
+| Spatial normalization (MNI) | — | — | ✓ | — | — |
+| Surface projection | — | — | — | ✓ | ✓ |
+| Interpolation steps | 1 | 1 | 1 | 1 + surface | 1 + surface |
+| Cross-run alignment | via cached xfms | intrinsic | intrinsic | intrinsic | intrinsic |
+| Cross-subject alignment | no | no | yes | no | yes |
+| **Exists on disk** | **yes** | **yes** | **yes** | **yes** | **yes** |
 
 ## Slice timing correction
 
-STC is applied by fMRIPrep in all three output spaces, including `func`
+STC is applied by fMRIPrep in every output space, including `func`
 (fMRIPrep runs AFNI `3dTshift` when `SliceTiming` metadata is present, before
 the final resampling step, so every output space inherits it).
 
@@ -141,21 +166,28 @@ Fieldmap coefficients are in `fmriprep/{sub}/{ses}/fmap/`:
 | `*_fmapid-*_desc-epi_fieldmap.nii.gz` | EPI reference aligned with coefficients |
 | `*_fmapid-*_desc-preproc_fieldmap.nii.gz` | Preprocessed fieldmap in Hz (for visualization) |
 
-Two fieldmaps per session: one for encoding runs (`B0mapencodingXXX`),
-one for retrieval/resting runs (`B0mapretrievalXXX`). The mapping from
-BOLD run to fieldmap is encoded in the `from-boldref_to-B0map*` filename.
+Each session has two or more fieldmaps (see
+[Fieldmap-to-run mapping](#fieldmap-to-run-mapping)). The mapping from BOLD
+run to fieldmap is encoded in the `from-boldref_to-B0map*` filename.
 
 The T1w → MNI warp is computed during anatomical preprocessing and
 stored in `fmriprep/{sub}/anat/`.
 
 ## Fieldmap-to-run mapping
 
-Each session acquires two pairs of AP/PA EPI fieldmaps:
+Fieldmap IDs have the form `B0map{label}sub##ses##`. The label names the
+block of runs the AP/PA pair was acquired for:
 
-| Fieldmap ID pattern | Applies to |
-|---------------------|------------|
-| `B0mapencodingXXXXX` | TBencoding (all runs), TBmath |
-| `B0mapretrievalXXXX` | TBretrieval (all runs), TBresting |
+| Label | Sessions | Usually applies to |
+|-------|----------|--------------------|
+| `encoding` | TB and NAT sessions | encoding and math runs |
+| `retrieval` | TB and NAT sessions | retrieval and resting runs |
+| `first`, `second`, `third` | localizer sessions | the runs acquired after that pair |
+| `encoding`, `first`, `second` | ses-01 and ses-30 | the runs acquired after that pair |
+| `math`, `resting` | a few TB and NAT sessions | the runs acquired after that pair |
+
+The usual mapping has exceptions, so read the per-run mapping from the
+filenames rather than from this table.
 
 The fieldmap ID is embedded in both the transform filename
 (`from-boldref_to-B0map{id}_xfm.txt`) and the coefficient filename
@@ -171,6 +203,5 @@ FreeSurfer 8.2.0 recons) in the re-preprocessing campaign that finished
 2026-08-26. No 24.1.1 output remains anywhere in the dataset. Check
 `dataset_description.json` in the tree you are reading.
 
-*Space inventory on this page verified against the filesystem on 2026-08-20;
-space, STC, voxel-size and version claims updated 2026-09-05 from the
-reprocessing-campaign record.*
+*Space inventory, voxel sizes, STC metadata and fieldmap IDs verified
+against the dataset on 2026-10-14.*

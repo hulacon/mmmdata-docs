@@ -74,17 +74,16 @@ Two films recur across all 10 sessions as condition 3: **"From Dad To Son"**
 
 ## Session Structure
 
-Each session contains 6–8 movies:
-- ~4 **condition 1** movies (same-session recall)
-- ~2 **condition 2** movies (recalled next session)
+Sessions 1–9 each show 8 movies; session 10 shows 6:
+- 4 **condition 1** movies (same-session recall)
+- 2 **condition 2** movies (recalled next session), in sessions 1–9 only
 - 2 **condition 3** movies (recurring)
-- Sessions 2–10 also include 2 **carry-over** movies from the prior session
-  (positions 7–8 at recall) that are recalled but not re-viewed
+- Sessions 2–10 also include the prior session's 2 condition-2 movies as
+  **carry-over** (positions 7–8 at recall), recalled but not re-viewed
 
-> **Unverified:** the per-session counts above are approximate. Taken
-> literally (~6 new films × 10 sessions + 2 recurring) they give 62 titles,
-> but the stimulus registry has 60. The exact schedule is
-> `MMM_movies_Sheet1.csv` / the stimulus registry, not this list.
+That gives 58 once-shown titles (6 × 9 + 4) plus the 2 recurring films, the
+60 titles in the stimulus registry. The schedule file spells one recurring
+title two ways ("From Dad To Son" / "From Dad to Son").
 
 ## Movie Schedule Metadata
 
@@ -93,7 +92,7 @@ Each session contains 6–8 movies:
 | Column | Description |
 |--------|-------------|
 | `Session` | NAT session number (1–10, mapping to ses-19 through ses-28) |
-| `Condition` | Recall condition: 1 = same-session, 2 = next-session, 3 = multi-repeat |
+| `Condition ([1] Same session recall, [2] Next session recall, [3] Multiple repeat)` | Recall condition: 1 = same-session, 2 = next-session, 3 = multi-repeat |
 | `Movie name` | Title of the film |
 | `Movie style` | Style description (e.g., "Animated, no speech", "Live-action, speech") |
 | `Movie duration` | Duration (currently empty — all ~4 minutes) |
@@ -109,10 +108,12 @@ Hand-annotated event descriptions for each movie, stored as Excel workbooks in
 `{Title}_annotation_master_{initials}.xlsx`, where `{initials}` identifies the
 annotator.
 
-- **Count**: 62 annotation files. Coverage is **not** one-per-movie:
-  `finders-fee` has no annotation file, and three files (Fargo, Migration,
-  Paddington) describe movies never shown in the experiment and are
-  deliberately excluded from the stimulus registry
+- **Count**: 62 annotation files, one for each of the 60 films plus two
+  (Migration, Paddington) for movies never shown in the experiment, which
+  are excluded from the stimulus registry. One file is named after its
+  source film rather than the clip: `Fargo_annotation_master_SL.xlsx`
+  annotates `finders-fee`, a scene from *Fargo*. The registry's
+  `annotation_file` column gives the mapping
 - **Format**: XLSX
 - **Location**: `movies/movie_annotations/`
 - **Annotators**: Multiple team members (identified by initials: SL, JL, HK, DP, LH)

@@ -14,8 +14,8 @@ Prisma 3T** scanner with a **64-channel head/neck coil**.
 |----------|----------|-------------|
 | Structural MRI | ses-01, ses-28, ses-30 | T1w, T2w, T2w oblique coronal |
 | Diffusion MRI | ses-01, ses-28 | 3-shell, 4 phase-encoding directions |
-| Functional MRI | ses-01 to ses-30 | 1.7 mm isotropic, TR = 1500 ms |
-| Fieldmaps | ses-02 to ses-30 | Spin-echo AP/PA pairs |
+| Functional MRI | ses-01 to ses-30 | 1.8 × 1.8 × 2.0 mm, TR = 1500 ms (the first participant's first two sessions: 1.7 mm isotropic) |
+| Fieldmaps | Functional sessions from ses-02 (from ses-01 in later participants) | Spin-echo AP/PA pairs |
 | Behavioral | All sessions | PsychoPy task responses |
 | Eye-tracking | Task sessions | Gaze position during scanning |
 | Physiological | Task sessions | Pulse and respiration |

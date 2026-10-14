@@ -8,7 +8,8 @@ nav_order: 1
 # MRI Sequence Information
 
 All data were acquired on a **Siemens MAGNETOM Prisma 3T** scanner
-(software: syngo MR XA30) at the University of Oregon, using a
+(software: syngo MR XA30 for the first three participants, XA60 from the
+fourth on) at the University of Oregon, using a
 **64-channel head/neck coil** (HeadNeck_64).
 
 ## Structural Data
@@ -52,7 +53,7 @@ All data were acquired on a **Siemens MAGNETOM Prisma 3T** scanner
 | TR | 11250 ms |
 | TE | 84 ms |
 | Flip angle | 150° |
-| Voxel size | ~0.35 × 0.35 × 1.8 mm (512 × 512 in-plane) |
+| Voxel size | 0.43 × 0.43 × 1.8 mm (512 × 512 × 50) |
 | Averages | 2 |
 | Acceleration | GRAPPA 2× |
 | Orientation | Oblique coronal (hippocampal long axis) |
@@ -88,16 +89,19 @@ All data were acquired on a **Siemens MAGNETOM Prisma 3T** scanner
 | TR | 1500 ms |
 | TE | 29 ms |
 | Flip angle | 90° |
-| Voxel size | 1.7 mm isotropic |
+| Voxel size | 1.8 × 1.8 × 2.0 mm |
 | Matrix | 124 × 124 |
 | Slices | 69 (23 per MB group × 3) |
 | Multiband factor | 3 |
 | Acceleration | GRAPPA 2× |
 | Phase encoding | AP (j−) |
-| Total readout time | 36.3 ms |
-| Effective echo spacing | 0.295 ms |
+| Total readout time | 35.05 ms |
+| Effective echo spacing | 0.285 ms |
 
-All functional tasks use identical acquisition parameters. Task-specific
+All functional tasks use identical acquisition parameters, with one
+exception: the first participant's first two sessions were acquired at
+1.7 mm isotropic (total readout time 36.3 ms, effective echo spacing
+0.295 ms) before the protocol settled on the values above. Task-specific
 protocol names vary but the underlying sequence is the same.
 
 ## Fieldmaps
@@ -116,7 +120,10 @@ protocol names vary but the underlying sequence is the same.
 | Phase encoding dirs | AP and PA (paired) |
 | Total readout time | 36.3 ms |
 | Effective echo spacing | 0.295 ms |
-| Sessions | All functional sessions (ses-02 through ses-30) |
+| Sessions | All functional sessions from ses-02 (from ses-01 in later participants) |
 
 AP/PA pairs are acquired at the start of each functional session for
-TOPUP-based distortion correction.
+TOPUP-based distortion correction. The fieldmaps keep the 1.7 mm isotropic
+grid and its 36.3 ms readout, so they match the BOLD readout only in the
+first participant's first two sessions; elsewhere the BOLD readout is
+35.05 ms.
