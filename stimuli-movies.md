@@ -131,12 +131,5 @@ grid, `movies_audio_frames_features.parquet` for acoustics, and the
 transcript, caption, and annotation groups alongside them. See
 [Computational Stimulus Features](stimuli_features.md).
 
-The pre-0.6.0 per-movie `{Title}_scores.csv` under `movies/viz2psy_scores/`,
-together with its `{Title}_scores_dashboard.html` files and
-`{Title}_scores_frames/` directories and the consolidated cue-score file, was
-**deleted 2026-08-23**. Those files were wide, indexed by `time` alone, and
-used the column names viz2psy 0.6.0 renamed. See the legacy note on
-[Computational Stimulus Features](stimuli_features.md).
-
 See the [viz2psy documentation](https://github.com/hulacon/viz2psy) for full
 feature definitions.

@@ -70,18 +70,9 @@ per-subject/session exceptions. It is ingested into the catalog by
 `mmmdata/scripts/catalog_expectations.py`; query the `resolution` view to
 compare declared expectations against what is actually present.
 
-> **Superseded.** Two earlier mechanisms are no longer live and should not be
-> used or cited:
->
-> - **`dataset_expectations.toml`** (in this docs repo) was tombstoned
->   2026-08-17. Nothing parses it at runtime; its numbers predate 2026-04 and
->   several are contradicted by a later audit. It is retained only as the
->   historical record of the acquisition exceptions in their original prose.
->   Successor: `expectations/dataset.toml`.
-> - **`inventory/manifest.db`** (SQLite) was the previous aggregate store,
->   last rebuilt in March 2026. It predates most current derivatives and is
->   not maintained. Successor: `inventory/catalog.duckdb`.
+> **Older stores — do not use.** `dataset_expectations.toml` (in this docs
+> repo) is retained only as a record of the acquisition exceptions in their
+> original prose; nothing reads it, and `expectations/dataset.toml` replaces
+> it. `inventory/manifest.db` (SQLite) is an earlier aggregate store that is
+> not maintained; the catalog (`inventory/catalog.duckdb`) replaces it.
 
----
-
-*Verified against the filesystem on 2026-10-14.*

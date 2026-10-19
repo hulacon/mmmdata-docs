@@ -40,15 +40,11 @@ Overview
 │   ├── file-organization.md       # BIDS directory tree & naming conventions
 │   ├── sourcedata.md              # Source data structure
 │   ├── derivatives.md             # Derivative trees & what each contains
-│   ├── preprocessing-pipeline.md  # Analysis-ready streams — DESIGN, not built
 │   ├── preprocessing-spaces.md    # Output spaces & preprocessing steps
 │   └── bidsification.md           # BIDSification pipeline & conversion details
 │
-├── Quality & Compliance/
-│   └── quality-assurance.md       # QA procedure, IQMs, run-level decisions
+├── quality-assurance.md           # QA procedure, IQMs, run-level decision records
 │
-├── compliance-status.md           # BIDS compliance checklists
-├── claude-and-mcp.md              # Using Claude with the MCP server on a dataset copy
 ├── access.md                      # Data access & availability
 └── contributors.md                # Project team & affiliations
 ```
@@ -67,30 +63,28 @@ Two rules that matter:
 - **Never push from a submodule checkout** (`docs/shared/` or
   `docs/doc/shared/`). Commit in this clone and push from here.
 
-## Documenting status
+## What belongs here
 
-The dataset and its pipelines are under active development, and several pages
-describe designs that are not built. Distinguish them explicitly — a
-collaborator reading a present-tense description will assume the files exist.
+These pages describe **the dataset**: how the study was designed and run,
+how the data were acquired, converted and preprocessed, and how they are
+organised. They are public, and they are meant to stay correct as the
+dataset changes. So:
 
-| Label | Meaning |
-|---|---|
-| **BUILT** | Exists on disk, for the subjects/sessions named |
-| **PARTIAL** | Some of it exists; say which part |
-| **PLANNED** / **DESIGN** | No code has run and no files exist |
-
-Conventions to follow when editing:
-
-- Put a status callout (`> **Status — …**`) at the top of any page whose
-  subject is wholly or partly unbuilt, and mark individual sections too.
-- Write planned behaviour in the conditional ("would produce"), not the
-  present tense ("produces").
-- End a page whose claims you checked with
-  `*Verified against the filesystem on YYYY-MM-DD.*`
-- **Do not quote counts that go stale** — subject counts, session counts,
-  per-pipeline completeness. Point at the catalog
-  (`inventory/catalog.duckdb`) instead. Durable structural facts (how many
-  movie stimuli exist, what the task labels are) are fine.
+- **No status, no plans.** Nothing here says what is done, in progress,
+  blocked or planned, when something ran, or what was deleted. That goes
+  stale silently and is the lab's working record, not the dataset's
+  description; it lives in the lab's private repo. Describe a pipeline or
+  derivative here once its output exists, in the present tense.
+- **No results.** Findings from analyses of the data are not published here.
+- **No coverage claims.** Which subjects and sessions exist, and what each
+  pipeline has covered, is answered by the catalog
+  (`inventory/catalog.duckdb`), not by prose. Durable structural facts (how
+  many movie stimuli exist, what the task labels are) are fine.
+- **Data described generically.** Example paths use `sub-##`, `ses-##`,
+  `YYYY-MM-DD` rather than real filenames or acquisition times.
+- **Pages for people running the code** (QC review, the MCP server, API
+  docs, command-line tools) live in [mmmdata](https://github.com/hulacon/mmmdata)'s
+  own `docs/`, under the site's *Code & Tools* section.
 
 ## Front matter
 

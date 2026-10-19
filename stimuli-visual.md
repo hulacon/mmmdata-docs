@@ -84,11 +84,6 @@ Consumers read the assembled table rather than those files:
 keyed by `stimulus_id`. See
 [Computational Stimulus Features](stimuli_features.md) for the schema.
 
-The pre-0.6.0 `viz2psy_scores.csv` (one wide row per image, ~2,900 columns,
-indexed by `filename`) was **deleted 2026-08-23** — it predated the §4.1
-column renames. See the legacy note on
-[Computational Stimulus Features](stimuli_features.md).
-
 Features extracted per image include:
 
 | Model | Columns | Description |

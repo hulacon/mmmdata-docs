@@ -7,15 +7,9 @@ nav_order: 5
 
 # Output Spaces & Preprocessing Steps
 
-> **All five spaces below exist.** The re-preprocessing campaign that
-> finished **2026-08-26** produced fMRIPrep **25.2.5** output in
-> `derivatives/fmriprep/` with `func` (native acquisition grid),
-> `MNI152NLin2009cAsym res-2` and `fsaverage6` for every run it covered;
-> a later backfill added `T1w` and `fsnative` for the same runs.
-> fMRIPrep 25.2.5 writes the `func` space directly, so the earlier post-hoc
-> resampling path is retired. The former `fmriprep_nordic/` tree was deleted
-> on the same date (see [Derivatives](derivatives.md#nordic-arm-retired)).
-> Query the catalog for which runs are covered.
+`derivatives/fmriprep/` provides five output spaces: `func`
+(native acquisition grid), `T1w`, `MNI152NLin2009cAsym res-2`, `fsnative`
+and `fsaverage6`. The catalog records which runs each space covers.
 
 This page describes five output spaces. Each
 space applies a different chain of spatial transforms, but all share the
@@ -125,7 +119,6 @@ mesh. Subcortical structures are not represented.
 | Interpolation steps | 1 | 1 | 1 | 1 + surface | 1 + surface |
 | Cross-run alignment | via cached xfms | intrinsic | intrinsic | intrinsic | intrinsic |
 | Cross-subject alignment | no | no | yes | no | yes |
-| **Exists on disk** | **yes** | **yes** | **yes** | **yes** | **yes** |
 
 ## Slice timing correction
 
@@ -133,17 +126,8 @@ STC is applied by fMRIPrep in every output space, including `func`
 (fMRIPrep runs AFNI `3dTshift` when `SliceTiming` metadata is present, before
 the final resampling step, so every output space inherits it).
 
-An earlier version of this page described a `func` space produced by a
-post-hoc resampling script with STC intentionally skipped, on the reasoning
-that GLMsingle's per-voxel HRF fitting absorbs slice-timing delays and that
-STC's temporal interpolation can reduce tSNR for single-trial estimation. That
-path is retired: fMRIPrep 25.2.5 writes `func` directly, and no non-STC'd
-BOLD exists on disk. Producing one would require a separate run with
-`--ignore slicetiming`.
-
-**Open question:** whether STC helps or hurts GLMsingle voxel reliability on
-this dataset has not been tested empirically. That comparison remains open; it
-is not a decision.
+No BOLD without STC is provided. Producing it would require a separate
+fMRIPrep run with `--ignore slicetiming`.
 
 ## Per-run transform files
 
@@ -199,9 +183,5 @@ self-documenting.
 ## fMRIPrep version
 
 The outputs described here were produced with **fMRIPrep 25.2.5** (external
-FreeSurfer 8.2.0 recons) in the re-preprocessing campaign that finished
-2026-08-26. No 24.1.1 output remains anywhere in the dataset. Check
-`dataset_description.json` in the tree you are reading.
-
-*Space inventory, voxel sizes, STC metadata and fieldmap IDs verified
-against the dataset on 2026-10-14.*
+FreeSurfer 8.2.0 recons). Check `dataset_description.json` in the tree you
+are reading.

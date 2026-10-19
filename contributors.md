@@ -1,6 +1,6 @@
 ---
 title: Contributors
-nav_order: 99
+nav_order: 30
 ---
 
 Isha Chhabra, _University of Oregon_

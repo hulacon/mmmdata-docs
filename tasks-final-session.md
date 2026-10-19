@@ -9,7 +9,7 @@ nav_order: 5
 
 ## Final Free Recall (ses-29)
 
-BIDS task label: `task-FINfreerecall` (provisional — ses-29 is not yet in BIDS)
+BIDS task label: `task-FINrecall` (`beh/` only; no imaging)
 
 - Outside the scanner behavioral task ~2 weeks after the last naturalistic task.
 - Participants were asked to recall as many details as possible about the entire experiment.

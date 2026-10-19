@@ -7,31 +7,19 @@ nav_order: 3
 
 # Derivatives & Preprocessing
 
-> **How to check what actually exists.** This page lists the derivative trees
-> and what each one is for. It does *not* assert per-subject completeness —
-> that goes stale. Query the Contract A catalog
-> (`inventory/catalog.duckdb`) for which subjects/sessions a given pipeline
-> has covered.
-
-The listing below is the set of derivative tree *names* the project uses. It
-is not a claim that every one exists today: the NORDIC-arm deletion of
-2026-08-26 (see [NORDIC arm (retired)](#nordic-arm-retired)) removed every
-24.1.1-derived downstream tree, and this page does not track which of the
-analysis trees (`glmsingle/`, `glmsingle_nat/`, `pattern_similarity/`,
-`srm_stimulus_space/`, `qc/`, `qc_review/`, `preprocessing_qc/`) have since
-been regenerated. The catalog's `datasets` table is the authority on which
-trees exist and at what pipeline version.
+The derivative trees the project uses, and what each one holds. Which
+subjects and sessions a tree covers, and at what pipeline version, is
+recorded in the data catalog (`inventory/catalog.duckdb`, `datasets` table)
+and in each tree's own `dataset_description.json`.
 
 ```
 derivatives/
-├── fmriprep/               # fMRIPrep preprocessed data (see version note below)
+├── fmriprep/               # fMRIPrep preprocessed data
 ├── mriqc/                  # MRIQC quality metrics and HTML reports
-├── preprocessing_qc/       # Per-run QC decision records (auto-stubs; see below)
+├── preprocessing_qc/       # Per-run QC decision records
 ├── qc_review/              # HTML QC dashboards and BOLD QC benchmarks
 ├── qc/                     # QC benchmark outputs (GLMsingle, ISC comparisons)
 ├── atlases/                # Group-level reference atlases in template space
-├── anatomical_rois/        # Convention only — EMPTY (see below)
-├── functional_rois/        # Convention only — EMPTY (see below)
 ├── hippunfold/             # HippUnfold hippocampal surface unfolding (whole-brain T2w)
 ├── hippunfold_oblcor/      # HippUnfold using oblique-coronal T2w acquisition
 ├── hsf/                    # Hippocampal subfield segmentation — HSF (Poiret et al.)
@@ -45,24 +33,13 @@ derivatives/
 └── behavioral_analysis/    # Behavioral accuracy, d-prime, and learning analyses
 ```
 
-**Pipeline versions.** The derivative trees on disk record their own
-provenance in `dataset_description.json` — read it there rather than trusting
-a number quoted in prose. `fmriprep/` is **fMRIPrep 25.2.5** output; `mriqc/`
-was produced with **MRIQC 24.1.0**.
-
-> **Version note.** A re-preprocessing campaign finished **2026-08-26**.
-> `derivatives/fmriprep/` now holds fMRIPrep **25.2.5** output, with external
-> FreeSurfer **8.2.0** recons, for every functional run of the BIDSified
-> subjects at that date (sub-03 through sub-07). **No 24.1.1 output exists
-> anywhere in the dataset.** The 25.2.5 tree emits native func-space BOLD
-> (the `func` output space, no `space-` entity) alongside
-> `MNI152NLin2009cAsym res-2` and `fsaverage6`; see
-> [Output Spaces](preprocessing-spaces.md). For runs added after the
-> campaign, query the catalog rather than assuming coverage.
-
-**Trees removed since earlier versions of this page:** `bids_validation/`
-(deleted 2026-08 after review; 256 GB) and `fmriprep_pre022426/` (archived
-legacy fMRIPrep run). Neither exists any more.
+**Pipeline versions.** Each derivative tree records its own provenance in
+`dataset_description.json`; read it there rather than trusting a number
+quoted in prose. `fmriprep/` is **fMRIPrep 25.2.5** output with external
+FreeSurfer **8.2.0** recons. It emits native func-space BOLD (the `func`
+output space, no `space-` entity) alongside `MNI152NLin2009cAsym res-2` and
+`fsaverage6`; see [Output Spaces](preprocessing-spaces.md). `mriqc/` was
+produced with **MRIQC 24.1.0**.
 
 ## Pipeline overview
 
@@ -83,19 +60,12 @@ BIDS raw (NIfTI + JSON + events TSV)
     │
     ├──▶ atlases/ (reference parcellations in template space)
     │
-    ├──▶ anatomical_rois/, hippunfold*/, hsf*/ (structural segmentations)
-    │
-    └──▶ functional_rois/ (subject-specific task-defined ROIs)
+    └──▶ hippunfold*/, hsf*/ (hippocampal segmentations)
 ```
 
 - MRIQC and fMRIPrep run in parallel, producing complementary QA output.
 - Downstream analysis trees (`glmsingle*`, `pattern_similarity/`,
   `srm_stimulus_space/`) read `fmriprep/` **directly**.
-- `derivatives/ready/` — the "analysis-ready streams" layer — is a **design
-  that has not been implemented**. The directory does not exist and no stream
-  cleaner has run. See
-  [Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md), which
-  labels each part of that design. Do not write code against `ready/` paths.
 
 ## Atlases
 
@@ -124,61 +94,6 @@ derivatives/atlases/
 
 **Entity key:** `seg-7n` / `seg-17n` = network solution, `scale-100` = number of
 parcels, `res-2` = 2 mm isotropic resolution.
-
-## Anatomical ROIs
-
-> **Status: EMPTY — naming convention only.** As of 2026-08-20
-> `derivatives/anatomical_rois/` contains nothing but its
-> `dataset_description.json`. No ROI has been generated. The tree below is the
-> convention new ROIs should follow, not a listing of files you can load.
-> Hippocampal segmentations that *do* exist are in `hippunfold*/` and `hsf*/`.
-
-Intended for subject-specific ROIs derived from structural imaging (e.g.,
-hippocampal subfield segmentations, custom FreeSurfer-based masks), stored
-per-subject (and optionally per-session if the definition is session-specific).
-
-```
-derivatives/anatomical_rois/
-├── dataset_description.json
-└── sub-03/
-    └── anat/
-        ├── sub-03_seg-hippsubfields_dseg.nii.gz     # Full subfield parcellation
-        ├── sub-03_seg-hippsubfields_dseg.tsv         # Label lookup table
-        ├── sub-03_label-CA1_mask.nii.gz              # Individual subfield mask
-        └── sub-03_label-CA1_mask.json                # {"Type": "ROI", "Sources": [...]}
-```
-
-## Functional ROIs
-
-> **Status: EMPTY — naming convention only.** As of 2026-08-20
-> `derivatives/functional_rois/` contains nothing but its
-> `dataset_description.json`. No functional ROI has been generated.
-
-Intended for subject-specific ROIs derived from task-based or resting-state
-analyses (e.g., localizer contrasts, seed-based connectivity maps). Each mask's
-JSON sidecar would document the contrast, threshold, and statistical criteria.
-
-```
-derivatives/functional_rois/
-├── dataset_description.json
-└── sub-03/
-    └── ses-01/
-        └── func/
-            ├── sub-03_ses-01_task-localizer_space-MNI152NLin2009cAsym_label-FFA_mask.nii.gz
-            ├── sub-03_ses-01_task-localizer_space-MNI152NLin2009cAsym_label-FFA_mask.json
-            └── ...
-```
-
-## NORDIC arm (retired)
-
-The dataset previously carried a parallel NORDIC-denoised preprocessing arm:
-`nordic/` (raw NORDIC outputs) and `fmriprep_nordic/` (fMRIPrep run on the
-denoised BOLD), with `_nordic`-suffixed GLMsingle trees downstream. NORDIC
-retention was dissolved on 2026-08-25 and those trees were **deleted on
-2026-08-26**, together with every other 24.1.1-derived downstream tree. The
-default (and only) preprocessed tree is `derivatives/fmriprep/`. There was
-never a per-run NORDIC source flag anywhere in the dataset. Re-running NORDIC
-on the new preprocessing is recorded as a "later" todo, not a plan.
 
 ## QC Review
 
@@ -225,31 +140,20 @@ derivatives/mriqc/
 Group-level behavioral analysis results from the trial-based memory paradigm,
 generated by `analyze_behavior.py` in the mmmdata codebase.
 
-> **Status: PARTIAL.** Only the two group-level tables exist. The
-> `figures/`, `sub-03/`, `sub-04/` and `sub-05/` directories are present but
-> **empty** — no per-subject outputs or figures have been generated.
-
 ```
 derivatives/behavioral_analysis/
-├── group/
-│   ├── accuracy_by_enCon.tsv    # Accuracy by encoding condition   [exists]
-│   └── dprime_by_subject.tsv    # Signal detection (d') per subject [exists]
-├── figures/                      # empty
-├── sub-03/                       # empty
-├── sub-04/                       # empty
-└── sub-05/                       # empty
+└── group/
+    ├── accuracy_by_enCon.tsv    # Accuracy by encoding condition
+    └── dprime_by_subject.tsv    # Signal detection (d') per subject
 ```
 
 ## QC decisions (`preprocessing_qc/`)
 
 One JSON per BOLD run recording an append-only decision history
-(`keep` / `exclude` / `investigate` / `pending`).
-
-**Every record currently on disk is an auto-generated stub** written in
-2026-04 from framewise-displacement statistics — no run has a human QC
-sign-off yet. Treat the dataset as not yet QC-reviewed. Schema and the
-read/write API are documented on the
-[Analysis-Ready Preprocessing Pipeline](preprocessing-pipeline.md) page.
+(`keep` / `exclude` / `investigate` / `pending`). The schema, where new
+decisions are written, and how to tell an automated entry from a person's
+review are documented under
+[Quality Assurance](quality-assurance.md#decision-records).
 
 ## pRF maps (`prf/`)
 
@@ -308,9 +212,3 @@ delineated from these maps.
 Computational features for the three stimulus sets, on the Contract B 0.5 s
 grid. See [Computational Feature Extraction](stimuli_features.md).
 
----
-
-*Tree listing on this page verified against the filesystem on 2026-08-20;
-derivative-tree and version claims updated 2026-09-05 from the
-reprocessing-campaign record; `prf/` section added 2026-09-22. Per-subject completeness is deliberately not
-asserted here — query the catalog.*

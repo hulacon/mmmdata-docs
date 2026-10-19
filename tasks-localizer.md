@@ -73,7 +73,7 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 - Original fLoc code: `sourcedata/shared/experiment_code/localizer/floc/` (Stigliani et al. V2.0, August 2015)
 - Updated version: `sourcedata/shared/experiment_code/localizer/floc_new/` (V3.0, August 2017; 12 stimuli per block)
 - Block-level timing in `.par` files; trial-level timing in detailed script files
-- BIDS `_events.tsv` files for fLoc are block-level (written 2026-08-21; onsets corrected 2026-09-08)
+- BIDS `_events.tsv` files for fLoc are block-level
 - **Timing origin:** the fLoc program starts on a scanner pulse, shows a 12 s countdown (`et_run_fLoc.m`, `countDown = 12`; 8 TRs at 1.5 s), and only then starts the clock its trial times are logged on. BIDS onsets therefore equal the logged times **plus 12 s**; a run is 208 volumes = 12 s countdown + 300 s of blocks. The logged scanner-trigger pulses sit at a fixed phase of the task clock and cannot reveal this whole-TR offset — only a fit to the BOLD can (see `mmmdata/src/python/raw2bids_converters/floc_events.py`).
 
 ### Data inventory
@@ -85,7 +85,6 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 
 **Source:** Adapted from the motor localizer in Tang et al. (2023) / LeBel et al. (2023), including the "speak" (covert narrative) condition used to define Broca's area.
 
-> *Corrected 2026-09-08.* This section previously said the MMMData version omits the "speak" condition and listed five conditions. It does not: the stimulus program's condition list and on-screen instructions both carry six, and every run presents five `speak` blocks. Verified against `localizer_motor.py` and all motor timing CSVs.
 
 **Citations:**
 - Tang, J., LeBel, A., Jain, S. et al. Semantic reconstruction of continuous language from non-invasive brain recordings. *Nature Neuroscience*, 26, 858–866 (2023). <https://doi.org/10.1038/s41593-023-01304-9>
@@ -104,7 +103,7 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
   | `saccade` | saccade | look around for the duration of the task |
   | `rest` | rest | rest with eyes open |
 
-- The instruction wording above is the on-screen text of the program that produced every motor run. A second program (the PsychoPy Builder version) exists in the experiment code with **different** wording for the same six cues — notably a *silent* lip protrusion for `mouth` rather than a vocalized one — but no run in the dataset is attributable to it. Whether any cohort was given that wording verbally is an open question (mmmdata-agents `docs/OPEN-QUESTIONS.md` Q19); until it is answered, treat `mouth` as vocalized, and see the caveat below.
+- The instruction wording above is the on-screen text of the program that produced every motor run. A second program (the PsychoPy Builder version) exists in the experiment code with **different** wording for the same six cues — notably a *silent* lip protrusion for `mouth` rather than a vocalized one — but no run in the dataset is attributable to it. No record says whether any cohort was given that wording verbally; treat `mouth` as vocalized, and see the caveat below.
 - **The block order is frozen.** The program shuffles the condition list under a hardcoded seed, so every run of every subject presents the identical 30-block sequence. Two runs in a session are not independent orderings, and order effects are perfectly confounded across subjects. Do not treat the sequence as randomised.
 - **Timing origin:** the program waits on the scanner sync key and resets its clock immediately afterwards — no countdown, no lead-in, no `launchScan`. The task clock is the scan clock, so onsets need no shift.
 - Run counts differ by cohort: the first cohort ran two runs in the final session (BOLD carries a `run` entity); under the regularised protocol motor moved to the localizer sessions at one run per session (BOLD carries **no** `run` entity, though the source CSV filename still numbers runs per subject). Query the catalog for what exists.
@@ -130,7 +129,6 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 - Tang, J., LeBel, A., Jain, S. et al. Semantic reconstruction of continuous language from non-invasive brain recordings. *Nature Neuroscience*, 26, 858–866 (2023). <https://doi.org/10.1038/s41593-023-01304-9>
 - LeBel, A., et al. A natural language fMRI dataset for voxelwise encoding models. *Scientific Data*, 10, 555 (2023). <https://doi.org/10.1038/s41597-023-02437-z>
 
-> *Corrected 2026-09-23.* This section previously gave the stimulus as ~611 s (and before that ~562 s) and described one program. Both durations are real: the file is 611.3 s, but it was **played in ~561.65 s** (see "Playback rate" below). And two program versions produced the data, with different trial windows; only one of them writes a timing record.
 
 ### Design
 - Single continuous auditory stimulus (music, speech and natural sounds in one WAV, `auditory_localizer_filtered.wav`, 44.1 kHz), followed by silence with a fixation dot to the end of the trial window
@@ -167,7 +165,6 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 - Da Costa, S., van der Zwaag, W., Marques, J. P., Frackowiak, R. S. J., Clarke, S., & Saenz, M. (2011). Human primary auditory cortex follows the shape of Heschl's gyrus. *Journal of Neuroscience*, 31(40), 14067–14075. <https://doi.org/10.1523/JNEUROSCI.2000-11.2011>
 - Da Costa, S., van der Zwaag, W., Miller, L. M., Clarke, S., & Saenz, M. (2013). Tuning in to sound: Frequency-selective attentional filter in human primary auditory cortex. *Journal of Neuroscience*, 33(5), 1858–1863. <https://doi.org/10.1523/JNEUROSCI.4405-12.2013>
 
-> *Corrected 2026-09-23.* This section previously gave an 8 s lead-in, a 28 s sweep, and "run 1 low-to-high, run 2 high-to-low" as if the run number were a within-session index. The lead-in is commented out in the program. The 28 s sweep plays in ~25.75 s. And the "run number" is typed in by the operator, who in practice entered the localizer-session number.
 
 ### Design
 - 15 trials per run, 32 s each: a swept-tone WAV, then silence with a fixation dot to the 32 s boundary. The 32 s cycle is set by the program's trial timer, so the phase-encoding period is exactly 32 s
@@ -193,8 +190,6 @@ Per-subject run counts are not listed here; query the catalog (`inventory/catalo
 Fixation baseline scan collected during ses-30 (final session). Participants maintained fixation on a central dot. One run per subject.
 
 Used as calibration data for gaze reconstruction from BOLD signal (PEER / DeepMReye).
-
-`_events.tsv` files for fixation runs were written 2026-08-21.
 
 ### Data inventory
 Per-subject run counts are not listed here; query the catalog (`inventory/catalog.duckdb`, see [Data Organization](data-organization.md)).
