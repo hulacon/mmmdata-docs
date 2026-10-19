@@ -15,20 +15,12 @@ Stimuli are scored by a family of extractors — **viz2psy** (visual),
 Outputs follow a shared column and sidecar convention so features from
 different extractors can be joined on a common stimulus identifier.
 
-> **The extraction campaign is complete (2026-08-23).** Every model in the
-> suite has run over every applicable stimulus set into
-> `derivatives/stimuli_features/`, and `psytwill features` assembles it into
-> **29 queryable tables, 651,913,184 rows, 3.67 GB of parquet**. That layout
-> is the one to read.
->
-> The pre-0.6.0 files under `stimuli/<set>/viz2psy_scores*` were **deleted
-> 2026-08-23** (5.2 G). They used the column names viz2psy 0.6.0 renamed, so a
-> recipe quoting a bare `memorability` or `valence` column predates the current
-> store — treat it as stale rather than reconciling against files that no
-> longer exist. Their five producer scripts are archived at
-> `mmmdata/scripts/archive/`, which is where the provenance lives.
-
----
+Every model in the suite runs over every applicable stimulus set into
+`derivatives/stimuli_features/`, and `psytwill features` assembles the
+output into the queryable tables described below. Column names follow the
+convention introduced in viz2psy 0.6.0; a recipe that quotes a bare
+`memorability` or `valence` column refers to an older layout that is not
+part of the dataset.
 
 ## Stimulus registry (canonical IDs)
 
@@ -49,7 +41,7 @@ registry's own `README.md` documents the events→ID join rules and known gaps.
 
 ## Layouts
 
-### Current — `derivatives/stimuli_features/`
+### `derivatives/stimuli_features/`
 
 The Contract B layout. Every CSV carries `stimulus_id` as its first column,
 fixed-width feature indices (`clip_000` … `clip_511`), and a `.meta.json`
@@ -119,30 +111,6 @@ lives in `derivatives/stimuli_features/_labels/` and joins back on
 Agents reach all of this through the stimuli MCP tools, which take a
 `group` parameter; `list_stimulus_sets` enumerates the group ids.
 
-### Legacy — `stimuli/<set>/viz2psy_scores.csv`
-
-The original all-models extraction (viz2psy 0.5.0, February 2026). Indexed by
-`filename` rather than `stimulus_id`, with human-readable feature column names
-(`memorability`, `Adoration`, `Aesthetic Appreciation`, …) predating the
-fixed-width convention. No `schema_version` in the sidecar.
-
-```
-stimuli/
-├── shared1000/viz2psy_scores.csv          # 1000 rows × ~2900 cols
-└── movies/viz2psy_scores/
-    ├── viz2psy_cue_scores.csv             # cue-image features (60 rows)
-    └── <Movie_Name>_scores.csv            # per-movie frame-level features
-```
-
-**Deleted 2026-08-23:** the campaign re-extracted every one of these models
-into the current layout under the §4.1 column convention, and the legacy tree
-was then removed. Nothing in `mmmdata` or `mmmdata-agents` read them by that
-point. The layout above is documented so an older analysis that cites these
-paths can be recognised, not so new work can use them — the files themselves
-are gone.
-
----
-
 ## viz2psy models
 
 The 11 visual models, run over images, movie frames, and cue images:
@@ -163,7 +131,7 @@ The 11 visual models, run over images, movie frames, and cue images:
 
 Running all models produces ~2,900 feature columns per image/frame.
 
-**EBind** (added 2026-08) is separate from the 11: a 1024-d shared embedding
+**EBind** is separate from the 11: a 1024-d shared embedding
 space spanning vision, text, and audio, so image, caption, word, and movie
 features land in one space and can be compared directly. It is extracted
 through all three `*2psy` repos.
@@ -217,12 +185,7 @@ python scripts/stimfeat_campaign.py aggregate --dry-run
 columns — psytwill's own resolver — in **both** directions: emitted columns
 that match no model prefix, tables with features but no `stimulus_id`,
 columns emitted but not declared, and columns declared but never written. A
-gate that reads declarations alone cannot see the second and third of those,
-which is how three defects reached the store before 2026-08-23.
-
-The pre-0.6.0 `run_viz2psy.py` and its four SLURM wrappers are archived at
-`scripts/archive/` — see that directory's README for why, and for the
-`stimfeat_campaign.py` equivalent of what they did.
+gate that reads declarations alone cannot see the second and third of those.
 
 ---
 
@@ -230,14 +193,5 @@ The pre-0.6.0 `run_viz2psy.py` and its four SLURM wrappers are archived at
 
 Feature queries are served by the project's MCP tools
 (`get_image_features`, `get_movie_features`, `search_stimuli`,
-`describe_features`, `list_stimulus_sets`), available to agents in this
-project.
-
-> An earlier version of this page documented a
-> `python -m src.cli --agent stimuli "…"` command line. That custom agent loop
-> was **retired in August 2026**; the command no longer exists.
-
----
-
-*Layout and coverage on this page verified against the filesystem on
-2026-08-20.*
+`describe_features`, `list_stimulus_sets`); see
+[Claude and the MCP Server](https://hulacon.github.io/mmmdata/doc/claude-and-mcp).

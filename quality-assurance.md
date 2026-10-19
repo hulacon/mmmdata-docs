@@ -1,8 +1,7 @@
 ---
 title: Quality Assurance
-parent: Quality & Compliance
-grand_parent: Dataset Description
-nav_order: 1
+parent: Dataset Description
+nav_order: 6
 ---
 
 # Quality Assurance
@@ -181,7 +180,7 @@ applied in two scopes:
 Run-level disposition should follow a tiered approach. Each tier maps to one
 of the four values in the implemented decision schema
 (`keep` / `exclude` / `investigate` / `pending`), documented under
-[Layer 1 on the Analysis-Ready Preprocessing Pipeline page](preprocessing-pipeline.md#layer-1-shared-base):
+[Decision records](#decision-records):
 
 1. **Include** → `keep`: Run meets all quality thresholds
 2. **Flag for review** → `investigate`: Run exceeds one or more soft
@@ -189,12 +188,57 @@ of the four values in the implemented decision schema
 3. **Include with censoring** → `keep`: Run has isolated high-motion volumes
    that can be censored (scrubbed) during analysis; overall run quality is
    acceptable. The decision record has no per-TR field; per-TR outlier
-   flagging is a layer-2 design item on the pipeline page
+   flagging is not part of this record
 4. **Exclude** → `exclude`: Run exceeds hard thresholds or visual inspection
    reveals uncorrectable artifact
 
 `pending` is the value automated writers record while a human decision is
 outstanding; it is not one of the tiers above.
+
+### Decision records
+
+Each BOLD run has an append-only decision history, one JSON file per run:
+
+```json
+{
+  "run_key": "sub-##_ses-##_task-<label>_run-##_bold",
+  "decisions": [
+    {
+      "decision": "pending",
+      "reason": "mean_fd=0.064mm; ...",
+      "reviewer": "<writer name>",
+      "automated": true,
+      "recommendation": "keep",
+      "timestamp": "YYYY-MM-DDThh:mm:ssZ"
+    }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `run_key` | `sub-##_ses-##_task-<label>[_run-##]_bold` |
+| `decisions[]` | Append-only history; the **last** entry is current |
+| `decision` | `keep`, `exclude`, `investigate`, or `pending` |
+| `reason` | Free text; for automated entries, the statistics behind the suggestion |
+| `reviewer` | Person's identifier, or an automated writer's name |
+| `automated` | `true` when written by tooling rather than a person |
+| `recommendation` | An automated writer's advisory suggestion. Never gates anything |
+| `timestamp` | UTC ISO-8601 |
+
+Automated writers record only `pending`, carrying any suggestion in
+`recommendation`, so a record cannot read as a human sign-off when it is
+not one. The earliest automated records predate that rule: they record
+`keep` directly with `"reviewer": "auto-stub"`, and are not sign-offs
+either. A run has been reviewed by a person only if its history contains an
+entry whose `reviewer` is a person.
+
+Records are written and read by `save_decision` / `load_decisions` in
+`mmmdata/src/python/neuroimaging/qc_dashboard.py` and by the interactive QC
+dashboard. New decisions go to `derivatives/duckbrain/qc/decisions/`;
+`derivatives/preprocessing_qc/` and `derivatives/qc_review/decisions/` are
+older read-only locations, and `load_decisions` reads all three, newest
+last.
 
 > **Note**: In a longitudinal, densely-sampled design like MMMData,
 > within-subject outlier detection is particularly important because

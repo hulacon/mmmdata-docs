@@ -113,9 +113,9 @@ Verbal free recall recordings (WAV format) are stored in sourcedata and are
 not part of the BIDS raw dataset:
 
 ```
-sourcedata/sub-03/ses-19/audio/
-├── recording_mic_2025-04-01_13h37.55.955.wav
-├── recording_mic_2025-04-01_13h39.37.413.wav
+sourcedata/sub-##/ses-##/audio/
+├── recording_mic_YYYY-MM-DD_HHhMM.SS.mmm.wav
+├── recording_mic_YYYY-MM-DD_HHhMM.SS.mmm.wav
 └── ...
 ```
 

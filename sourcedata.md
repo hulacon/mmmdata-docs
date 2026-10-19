@@ -56,6 +56,3 @@ mmmsourcedata/
 - `shared/conversion/` contains the file inventory (`file_inventory.csv`) and
   event file generation scripts used by the automated BIDS conversion pipeline.
 
----
-
-*Layout verified against the filesystem on 2026-10-14.*

@@ -22,9 +22,7 @@ recall the other.
 | `task-TB2AFC` | Two-alternative forced-choice recognition (`beh/`, no BOLD) |
 
 These are the labels in the files. The `TB*` prefixes were applied during
-BIDSification — an earlier version of this page listed them as "planned"
-alongside unprefixed `task-encoding` / `task-retrieval` labels, which no
-longer exist anywhere in the dataset.
+BIDSification.
 
 ## Encoding
 - Task: "How well are you able to associate the word with the image?" Select 1 if it was not at all, 2 for somewhat, and 3 for very well.

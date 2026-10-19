@@ -49,10 +49,9 @@ stimuli/
 
 All visual stimuli (shared1000 images, movie frames, and movie cue images) have
 been processed with [viz2psy](https://github.com/hulacon/viz2psy), a toolbox
-that extracts psychological and perceptual features from images and video. The
-extraction campaign completed 2026-08-23. Output covers memorability, emotion,
-scene categorization, low-level statistics, object detection, saliency,
-aesthetics, semantic embeddings (CLIP, DINOv2), spatial frequency, and
+that extracts psychological and perceptual features from images and video.
+Output covers memorability, emotion, scene categorization, low-level
+statistics, object detection, saliency, aesthetics, semantic embeddings (CLIP, DINOv2), spatial frequency, and
 captioning, one CSV per model with a `.meta.json` sidecar documenting feature
 definitions and provenance. See
 [Computational Stimulus Features](stimuli_features.md) for the store layout.
@@ -63,8 +62,3 @@ Image–word pairings are **randomly assigned** per subject. The specific pairin
 for each subject can be reconstructed from the behavioral CSV files in
 `sourcedata/sub-{id}/ses-{NN}/behavioral/`. There is no fixed pairing file;
 assignment is determined at runtime by the PsychoPy experiment code.
-
-## Open Questions
-
-- NSD image licensing terms for data sharing
-- Movie licensing/provenance details for data sharing

@@ -37,13 +37,6 @@ Full demographics (including education, race, sleep, medication history) are
 recorded in `participants.tsv`. Questionnaire data (VVIQ, final debriefing)
 are in `phenotype/`.
 
-> **Session coverage.** This page does not say which sessions or derivatives
-> are complete for any subject. For any coverage question — which subjects
-> and sessions exist, what a pipeline has processed —
-> query the catalog (`inventory/catalog.duckdb`); see
-> [Data Organization](data-organization.md). ses-29 (out-of-scanner
-> behavioral) is not yet BIDS for any subject.
-
-*Participant table verified against `participants.tsv` and the filesystem on
-2026-08-20; the per-subject `Status` column was removed 2026-09-05 from the
-project's settled records (coverage is a catalog question).*
+Which subjects and sessions exist, and what each pipeline has processed, is
+recorded in the catalog (`inventory/catalog.duckdb`); see
+[Data Organization](data-organization.md).

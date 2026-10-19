@@ -61,7 +61,7 @@ canonical source of truth for session-level anomalies. Companion sidecar:
 | Final session behavioral CSVs | ~15 | ses-30 | timed_events.py, localizer_events.py, behavioral_to_beh.py | `*_events.tsv` / `*_beh.tsv` + `.json` |
 | EyeLink EDF files | 87 (73 viable) | ses-19–28 | edf_to_physio.py | `*_recording-eye_physio.tsv.gz` + `.json` |
 | Siemens PhysioLog DICOMs | 611 (232 convertible) | ses-01–28, 30 | physio_dcm.py | `*_recording-scanner_physio.tsv.gz` + `.json` |
-| Audio WAV recordings | ~78 | ses-19–28 | None | Stays in sourcedata (future human annotation) |
+| Audio WAV recordings | ~78 | ses-19–28 | None | Stays in sourcedata |
 | Scan questionnaire (Excel) | 81 | ses-04–30 | generate_sessions_tsv.py | `sub-XX_sessions.tsv` |
 | Demographics / VVIQ / Debriefing (Excel) | 3 each | enrollment, ses-30 | generate_phenotype.py | `participants.tsv`, `phenotype/*.tsv` |
 
@@ -84,19 +84,11 @@ appropriate converter.
 | localizer_events.py | localizer_events | Localizer CSVs | events TSV | 9 |
 | edf_to_physio.py | edf_to_physio | EyeLink EDF files | physio TSV.GZ (3 cols: x, y, pupil) | 73 |
 | physio_dcm.py | physio_dcm | Siemens PhysioLog DICOMs | physio TSV.GZ (trigger, pulse, resp) | 232 |
-| spoken_recall.py | *(standalone)* | ses-29 Whisper transcripts | beh TSV | in progress |
+| spoken_recall.py | *(standalone)* | ses-29 Whisper transcripts | beh TSV | — |
 
 `spoken_recall.py` is not dispatched by `run_all.py` — it is a standalone
 converter for the ses-29 final free-recall session and is run directly
-(`python spoken_recall.py 3 4 5 --dry-run`). That session is not yet BIDS; see
-[Quality & Compliance](compliance-status.md).
-
-> **Note (2026-08-20).** This package existed as two divergent git-tracked
-> copies — `code/mmmdata/raw2bids_converters/` and
-> `code/mmmdata/src/python/raw2bids_converters/` — which had forked in both
-> directions since February 2026. They were reconciled into the
-> `src/python/` path above and the duplicate removed. Anything referring to
-> the old top-level path predates that.
+(`python spoken_recall.py <subject> ... --dry-run`).
 
 **Total output:** 834 conversions producing 1,298 data files + 1,298 JSON sidecars = 2,596 files.
 
@@ -132,9 +124,6 @@ sbatch scripts/behavioral_dryrun.sbatch
 # Full conversion
 sbatch scripts/behavioral_convert.sbatch
 
-# Validation against reference data — see the note under "Validation" below:
-# derivatives/bids_validation/ was deleted in Aug 2026, so this no longer runs
-sbatch scripts/validate_step8.sbatch
 ```
 
 Both sbatch scripts invoke `run_all.py`. The dry-run
@@ -318,12 +307,10 @@ All supplementary scripts live in `code/mmmdata/scripts/`.
 
 ## Validation
 
-> **Historical — the reference data is gone.** The validation steps below ran
-> against `derivatives/bids_validation/`, a 256 GB tree of reference event
-> files and hand-generated configs that was **deleted in August 2026** after
-> review. The results recorded here stand as the record of that validation
-> pass, but the commands can no longer be re-run as written. Re-establishing
-> a reference set would be the first step in re-validating.
+> The conversion was validated once, against a reference set of event files
+> and configs produced independently by standalone scripts. That reference
+> set is not kept with the dataset, so the steps below record how the
+> validation was done; they cannot be re-run as written.
 
 ### Behavioral pipeline
 
@@ -423,11 +410,9 @@ system (for imaging DICOMs).
 | dcm2bids generated configs | `code/dcm2bids_configfiles/sub-XX/` |
 | Pipeline scripts | `code/mmmdata/scripts/` |
 | Agent code | `code/mmmdata-agents/` |
-| Validation reference | `derivatives/bids_validation/eventfiles/` — **deleted Aug 2026** |
 | stimfeat conda env | `/projects/hulacon/shared/envs/stimfeat` |
 
 ---
 
-*Paths and tree existence on this page verified on 2026-08-20. Conversion
-counts in the tables above date from the original conversion campaign and
-have not been re-derived — query the catalog for current file counts.*
+*Conversion counts in the tables above are from the original conversion
+run; the catalog has current file counts.*

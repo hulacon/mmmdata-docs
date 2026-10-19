@@ -19,8 +19,7 @@ movie clips. During retrieval, participants verbally recall what they remember
 | `task-NATresting` | Resting state between task blocks |
 
 These are the labels in the files. The `NAT*` prefixes were applied during
-BIDSification — an earlier version of this page listed them as "planned"
-alongside unprefixed labels, which no longer exist anywhere in the dataset.
+BIDSification.
 
 ## Movie Viewing
 - Watched 8 films of 2-6 minutes each

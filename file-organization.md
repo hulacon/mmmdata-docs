@@ -29,7 +29,7 @@ nav_order: 1
 │   │   ├── fmap/
 │   │   ├── beh/                  # Behavioral response files (e.g., TB2AFC)
 │   │   └── func/                 # TB or NAT memory tasks + events + physio
-│   ├── ses-29/                   # Out-of-scanner behavioral session (BIDSification in progress)
+│   ├── ses-29/                   # Out-of-scanner behavioral session
 │   └── ses-30/
 │       ├── anat/                 # Final T1w
 │       ├── fmap/
@@ -88,6 +88,5 @@ no BOLD runs.
 
 ---
 
-*Structure on this page verified against the filesystem on 2026-08-20.
-Per-subject session coverage is deliberately not asserted here — query the
-catalog (see [Data Organization](data-organization.md)).*
+*Which sessions exist for each subject is recorded in the catalog (see
+[Data Organization](data-organization.md)).*
