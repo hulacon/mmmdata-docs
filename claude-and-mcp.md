@@ -11,9 +11,9 @@ Claude Code or Claude Science, query a copy of the dataset: BIDS contents, the
 data catalog, QC metrics, stimulus features and plots. This page covers
 running it against your own copy.
 
-> **Shared copies are de-identified exports** (dates shifted per participant,
-> free-text transcripts redacted), not the lab's working tree. The server
-> works the same on either.
+> **Copies shared with collaborators** have defaced anatomical images and
+> contain no recordings of participants' voices. A future public release will
+> go through further de-identification. The server works the same on any copy.
 
 ## What the server is
 
