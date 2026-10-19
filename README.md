@@ -48,6 +48,7 @@ Overview
 │   └── quality-assurance.md       # QA procedure, IQMs, run-level decisions
 │
 ├── compliance-status.md           # BIDS compliance checklists
+├── claude-and-mcp.md              # Using Claude with the MCP server on a dataset copy
 ├── access.md                      # Data access & availability
 └── contributors.md                # Project team & affiliations
 ```
