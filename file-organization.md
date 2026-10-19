@@ -29,7 +29,8 @@ nav_order: 1
 │   │   ├── fmap/
 │   │   ├── beh/                  # Behavioral response files (e.g., TB2AFC)
 │   │   └── func/                 # TB or NAT memory tasks + events + physio
-│   ├── ses-29/                   # Out-of-scanner behavioral session
+│   ├── ses-29/
+│   │   └── beh/                  # Out-of-scanner free recall (FINrecall); no imaging
 │   └── ses-30/
 │       ├── anat/                 # Final T1w
 │       ├── fmap/
@@ -80,10 +81,10 @@ Functional task labels carry a phase prefix. The full set in use:
 | Baseline | `INITresting` |
 | Trial-based | `TBencoding`, `TBretrieval`, `TBmath`, `TBresting`, `TB2AFC` (beh) |
 | Naturalistic | `NATencoding`, `NATretrieval`, `NATmath`, `NATresting` |
-| Final | `FINretrieval`, `FINresting`, `FIN2AFC` (beh), `FINtimeline` (beh) |
+| Final | `FINrecall` (beh), `FINretrieval`, `FINresting`, `FIN2AFC` (beh), `FINtimeline` (beh) |
 | Localizer | `prf`, `floc`, `tone`, `auditory`, `motor`, `fixation` |
 
-`TB2AFC`, `FIN2AFC` and `FINtimeline` appear only as `beh/` files — they have
+`TB2AFC`, `FINrecall`, `FIN2AFC` and `FINtimeline` appear only as `beh/` files — they have
 no BOLD runs.
 
 ---

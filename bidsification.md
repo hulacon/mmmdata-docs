@@ -130,9 +130,9 @@ Both sbatch scripts invoke `run_all.py`. The dry-run
 takes ~15 minutes (DICOM parsing for physio); the full conversion takes ~45 minutes
 (EDF processing dominates).
 
-**Agent interface:** The BIDS agent in mmmdata-agents exposes
+**Agent interface:** The mmmdata MCP server exposes
 `run_behavioral_conversion` and `validate_conversion` tools
-(`mmmdata-agents/src/tools/conversion_tools.py`).
+(`mmmdata/src/python/mmmdata_mcp/tools/conversion_tools.py`).
 
 ### EDF Triage
 
@@ -271,9 +271,9 @@ python scripts/run_dcm2bids.py --subject sub-03 --session ses-06
 sbatch scripts/dcm2bids.sbatch  # (with SUBJECT/SESSION env vars)
 ```
 
-**Agent interface:** The BIDS agent in mmmdata-agents exposes
+**Agent interface:** The mmmdata MCP server exposes
 `generate_dcm2bids_config` and `submit_dcm2bids` tools
-(`mmmdata-agents/src/tools/conversion_tools.py`).
+(`mmmdata/src/python/mmmdata_mcp/tools/conversion_tools.py`).
 
 ---
 
@@ -409,7 +409,6 @@ system (for imaging DICOMs).
 | dcm2bids config system | `code/mmmdata/src/python/dcm2bids_config/` |
 | dcm2bids generated configs | `code/dcm2bids_configfiles/sub-XX/` |
 | Pipeline scripts | `code/mmmdata/scripts/` |
-| Agent code | `code/mmmdata-agents/` |
 | stimfeat conda env | `/projects/hulacon/shared/envs/stimfeat` |
 
 ---
