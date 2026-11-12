@@ -235,10 +235,9 @@ entry whose `reviewer` is a person.
 
 Records are written and read by `save_decision` / `load_decisions` in
 `mmmdata/src/python/neuroimaging/qc_dashboard.py` and by the interactive QC
-dashboard. New decisions go to `derivatives/duckbrain/qc/decisions/`;
-`derivatives/preprocessing_qc/` and `derivatives/qc_review/decisions/` are
-older read-only locations, and `load_decisions` reads all three, newest
-last.
+dashboard. Decisions are written to `derivatives/duckbrain/qc/decisions/`.
+`load_decisions` also reads `derivatives/preprocessing_qc/` and
+`derivatives/qc_review/decisions/` when they exist (read-only), newest last.
 
 > **Note**: In a longitudinal, densely-sampled design like MMMData,
 > within-subject outlier detection is particularly important because

@@ -15,7 +15,7 @@ discrete series of trials) relates to doing so in more naturalistic settings
 
 - **Design**: Dense within-subject (many sessions per participant, few participants)
 - **Target sample**: six to seven usable subjects; sub-01 and sub-02 are pilots
-- **Sessions per subject**: Up to 30 scanning sessions
+- **Sessions per subject**: Up to 30 sessions (29 scanned; ses-29 is an out-of-scanner recall session)
 - **Scanner**: Siemens MAGNETOM Prisma 3T, University of Oregon
 - **BIDS version**: 1.9.0
 
@@ -27,11 +27,11 @@ discrete series of trials) relates to doing so in more naturalistic settings
 | sub-03 | 20 | M | right | normal |
 | sub-04 | 28 | M | right | normal |
 | sub-05 | 22 | F | right | corrected |
-| sub-06, sub-07, sub-08, sub-09 | — | — | — | — |
+| sub-06, sub-07, sub-09 | — | — | — | — |
 
 sub-01 and sub-02 are pilots (DICOMs in `mmmsourcedata/archive/pilot/` only)
-and are not BIDSified; all other enrolled subjects are BIDSified as their data
-arrive. Query the catalog for coverage.
+and are not BIDSified. sub-08 was enrolled but is not part of the dataset.
+Query the catalog for coverage.
 
 Full demographics (including education, race, sleep, medication history) are
 recorded in `participants.tsv`. Questionnaire data (VVIQ, final debriefing)
