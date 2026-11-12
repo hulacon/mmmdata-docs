@@ -16,30 +16,33 @@ and in each tree's own `dataset_description.json`.
 derivatives/
 ├── fmriprep/               # fMRIPrep preprocessed data
 ├── mriqc/                  # MRIQC quality metrics and HTML reports
-├── preprocessing_qc/       # Per-run QC decision records
-├── qc_review/              # HTML QC dashboards and BOLD QC benchmarks
-├── qc/                     # QC benchmark outputs (GLMsingle, ISC comparisons)
+├── qsiprep/                # QSIPrep diffusion preprocessing
 ├── atlases/                # Group-level reference atlases in template space
-├── hippunfold/             # HippUnfold hippocampal surface unfolding (whole-brain T2w)
-├── hippunfold_oblcor/      # HippUnfold using oblique-coronal T2w acquisition
+├── functional_rois/        # Subject-specific functionally defined ROIs
+├── hippunfold/             # HippUnfold 1.x hippocampal unfolding (whole-brain T2w)
+├── hippunfold_oblcor/      # HippUnfold 1.x on the oblique-coronal T2w
+├── hippunfold_v2/          # HippUnfold 2.x (whole-brain T2w)
+├── hippunfold_v2_oblcor/   # HippUnfold 2.x on the oblique-coronal T2w
 ├── hsf/                    # Hippocampal subfield segmentation — HSF (Poiret et al.)
-├── hsf_oblcor/             # HSF using oblique-coronal T2w acquisition
-├── glmsingle/              # GLMsingle single-trial betas, TB tasks
-├── glmsingle_nat/          # GLMsingle betas, NAT tasks
-├── pattern_similarity/     # Pattern-similarity benchmark results
-├── srm_stimulus_space/     # Shared-response-model stimulus-space analyses
+├── hsf_oblcor/             # HSF on the oblique-coronal T2w
+├── glmsingle_tb/           # GLMsingle single-trial betas, TB encoding + retrieval
+├── nilearn_glm/            # nilearn first-level GLM contrast maps
 ├── prf/                    # Population receptive field maps, pooled per subject (see below)
 ├── stimuli_features/       # Computational stimulus features (see stimuli_features.md)
 └── behavioral_analysis/    # Behavioral accuracy, d-prime, and learning analyses
 ```
 
+Other directories under `derivatives/` hold working analyses and method
+comparisons. Each one describes itself in its own `dataset_description.json`.
+
 **Pipeline versions.** Each derivative tree records its own provenance in
 `dataset_description.json`; read it there rather than trusting a number
 quoted in prose. `fmriprep/` is **fMRIPrep 25.2.5** output with external
-FreeSurfer **8.2.0** recons. It emits native func-space BOLD (the `func`
-output space, no `space-` entity) alongside `MNI152NLin2009cAsym res-2` and
-`fsaverage6`; see [Output Spaces](preprocessing-spaces.md). `mriqc/` was
-produced with **MRIQC 24.1.0**.
+FreeSurfer **8.2.0** recons. It writes five output spaces: native func-space
+BOLD (the `func` space, no `space-` entity), `T1w`, `MNI152NLin2009cAsym
+res-2`, `fsnative` and `fsaverage6`; see
+[Output Spaces](preprocessing-spaces.md). `mriqc/` was produced with an
+**MRIQC 24.1.0** development build (`24.1.0.dev0`).
 
 ## Pipeline overview
 
@@ -53,10 +56,11 @@ BIDS raw (NIfTI + JSON + events TSV)
     │
     ├──▶ fMRIPrep (registration, distortion correction, confounds)
     │        │
-    │        ├──▶ glmsingle* (single-trial betas)
-    │        ├──▶ prf/ (pRF parameter maps from task-prf)
-    │        ├──▶ pattern_similarity/, srm_stimulus_space/ (analyses)
-    │        └──▶ preprocessing_qc/ (per-run QC decision records)
+    │        ├──▶ glmsingle_tb/ (single-trial betas)
+    │        ├──▶ nilearn_glm/ (localizer and task contrast maps)
+    │        └──▶ prf/ (pRF parameter maps from task-prf)
+    │
+    ├──▶ QSIPrep (diffusion preprocessing)
     │
     ├──▶ atlases/ (reference parcellations in template space)
     │
@@ -64,74 +68,64 @@ BIDS raw (NIfTI + JSON + events TSV)
 ```
 
 - MRIQC and fMRIPrep run in parallel, producing complementary QA output.
-- Downstream analysis trees (`glmsingle*`, `pattern_similarity/`,
-  `srm_stimulus_space/`) read `fmriprep/` **directly**.
+- Downstream analysis trees (`glmsingle_tb/`, `nilearn_glm/`, `prf/`) read
+  `fmriprep/` **directly**.
 
 ## Atlases
 
 Group-level reference atlases stored at the template level (no per-subject data).
-Each atlas has a `dataset_description.json` and an `atlas-<label>_description.json`
-sidecar with provenance, license, and citation info.
+The tree has a `dataset_description.json` and one `atlas-<label>_description.json`
+per atlas family with provenance, license, and citation info. Every atlas file
+has its own JSON sidecar and a `.tsv` label table.
 
-### Schaefer 2018
+| Atlas | `atlas-` label | Variants |
+|---|---|---|
+| Schaefer 2018 local-global parcellation (Schaefer et al., 2018, _Cerebral Cortex_) | `Schaefer2018` | `seg-7n` / `seg-17n` network solutions × 10 granularities, `scale-100` to `scale-1000` in steps of 100 |
+| HCP multimodal parcellation (Glasser et al., 2016) | `HCPMMP1` | parcels; on the surface also `seg-sections` (grouped sections) |
+| Harvard-Oxford cortical / subcortical | `HOCPA` / `HOSPA` | probabilistic (`probseg`) and 25 %-thresholded (`desc-th25_dseg`) |
 
-Local-global cortical parcellation (Schaefer et al., 2018, _Cerebral Cortex_).
-Available in **7-network** and **17-network** solutions at 8 granularities
-(100, 200, 300, 400, 500, 600, 800, 1000 parcels). All files are in
-`MNI152NLin2009cAsym` space at 2 mm resolution, matching fMRIPrep output.
+Two templates:
+
+- `tpl-MNI152NLin2009cAsym/anat/`, at 2 mm (`res-2`), matching fMRIPrep's
+  MNI output: every atlas above, plus the template T1w.
+- `tpl-fsaverage/anat/`, surface label files (`hemi-{L,R}`, `den-41k`, the
+  fsaverage6 mesh): Schaefer 2018 at `scale-400` (both network solutions),
+  `HCPMMP1` (with `seg-sections`) and `HOCPA` `desc-th25`.
 
 ```
 derivatives/atlases/
 ├── dataset_description.json
-├── atlas-Schaefer2018_description.json
-└── tpl-MNI152NLin2009cAsym/
-    └── anat/
-        ├── tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_seg-7n_scale-100_res-2_dseg.nii.gz
-        ├── tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_seg-7n_scale-100_res-2_dseg.tsv
-        ├── ...  (7n × 8 scales + 17n × 8 scales = 32 NIfTI + 32 TSV)
-        └── tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_seg-17n_scale-1000_res-2_dseg.tsv
+├── atlas-<family>_description.json
+├── tpl-MNI152NLin2009cAsym/anat/
+│   ├── tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_seg-7n_scale-100_res-2_dseg.{nii.gz,tsv,json}
+│   └── ...
+└── tpl-fsaverage/anat/
+    ├── tpl-fsaverage_hemi-L_den-41k_atlas-Schaefer2018_seg-7n_scale-400_dseg.label.gii
+    └── ...
 ```
 
 **Entity key:** `seg-7n` / `seg-17n` = network solution, `scale-100` = number of
-parcels, `res-2` = 2 mm isotropic resolution.
-
-## QC Review
-
-HTML dashboards for visual QC of structural and functional scans, generated
-from MRIQC outputs. Includes per-subject and group-level views for T1w, T2w,
-and BOLD, plus `bold_qc_benchmarks.md` — a reference table of absolute IQM
-thresholds with citations.
-
-```
-derivatives/qc_review/
-├── bold_qc_benchmarks.md
-├── dashboards/
-│   ├── qc_dashboard_all_bold.html
-│   ├── qc_dashboard_sub-03_bold.html
-│   └── ...  (per-subject T1w, T2w, BOLD dashboards)
-└── ...
-```
+parcels, `res-2` = 2 mm isotropic resolution, `den-41k` = fsaverage6 vertex
+density.
 
 ## MRIQC
 
-Image quality metrics generated by MRIQC v24.1.0 for structural and functional
-scans. Outputs include individual HTML visual reports and per-image quality
-metric (IQM) JSON files for automated outlier detection.
+Image quality metrics generated by MRIQC for structural, diffusion and
+functional scans. Outputs include individual HTML visual reports, per-image
+quality metric (IQM) JSON files, and group IQM tables.
 
 ```
 derivatives/mriqc/
 ├── dataset_description.json
+├── group_{T1w,T2w,dwi,bold}.{tsv,html}       # Group IQM tables and reports
 ├── logs/
-├── sub-03/
+├── sub-##/
 │   ├── figures/
-│   ├── ses-01/
-│   │   └── anat/       # T1w, T2w quality metrics + figures
-│   ├── ses-02/ ...
-│   └── ses-30/
-│       └── func/       # BOLD quality metrics + figures
-├── sub-04/
-├── sub-05/
-├── sub-03_ses-01_acq-MPR_run-01_T1w.html   # Individual report pages
+│   └── ses-##/
+│       ├── anat/       # T1w, T2w quality metrics
+│       ├── dwi/        # DWI quality metrics
+│       └── func/       # BOLD quality metrics
+├── sub-##_ses-##_acq-MPR_run-##_T1w.html     # Individual report pages
 └── ...
 ```
 
@@ -147,12 +141,12 @@ derivatives/behavioral_analysis/
     └── dprime_by_subject.tsv    # Signal detection (d') per subject
 ```
 
-## QC decisions (`preprocessing_qc/`)
+## QC decisions
 
-One JSON per BOLD run recording an append-only decision history
-(`keep` / `exclude` / `investigate` / `pending`). The schema, where new
-decisions are written, and how to tell an automated entry from a person's
-review are documented under
+Per-run QC decisions are one JSON per BOLD run recording an append-only
+decision history (`keep` / `exclude` / `investigate` / `pending`), written
+under `derivatives/duckbrain/qc/decisions/`. The schema and how to tell an
+automated entry from a person's review are documented under
 [Quality Assurance](quality-assurance.md#decision-records).
 
 ## pRF maps (`prf/`)

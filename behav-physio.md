@@ -18,9 +18,9 @@ recognition judgments, timeline ordering).
 Each behavioral file consists of a paired TSV and JSON sidecar:
 
 ```
-sub-03/ses-04/beh/
-├── sub-03_ses-04_task-TB2AFC_run-01_beh.tsv
-└── sub-03_ses-04_task-TB2AFC_run-01_beh.json
+sub-##/ses-##/beh/
+├── sub-##_ses-##_task-TB2AFC_run-##_beh.tsv
+└── sub-##_ses-##_task-TB2AFC_run-##_beh.json
 ```
 
 ### Tasks with behavioral files
@@ -30,12 +30,14 @@ sub-03/ses-04/beh/
 | `TB2AFC` | ses-04 through ses-18 | Two-alternative forced choice recognition test |
 | `FIN2AFC` | ses-30 | Final session 2AFC recognition |
 | `FINtimeline` | ses-30 | Temporal ordering judgment |
+| `NATretrieval` | ses-19 through ses-28 | Word-level transcript of the in-scanner spoken recall, one row per word, timed on the BOLD run's clock (the same session also has `NATretrieval` BOLD runs) |
 
 ### Key columns (TB2AFC)
 
 `onset`, `duration`, `trial_type`, `modality`, `word`, `image1`, `image2`,
 `correct_resp`, `resp`, `resp_RT`, `trial_accuracy`, `enCon` (encoding
-condition), `reCon` (retrieval condition), `cueId`, `pairId`.
+condition), `reCon` (retrieval condition), `cueId`, `pairId`, `recog`,
+`trial_id`. Read the header of the file for the full set.
 
 ## Physiological Data
 
@@ -45,16 +47,16 @@ directories, using the BIDS `_physio.tsv.gz` + `_physio.json` format.
 ### Scanner physiological monitoring
 
 Scanner volume-trigger, pulse oximetry, and respiratory signals recorded by the
-Siemens PMU system during scanning. Present primarily in trial-based sessions.
+Siemens PMU system during scanning.
 
 ```
-sub-03/ses-04/func/
-├── sub-03_ses-04_task-TBencoding_run-01_recording-trigger_physio.tsv.gz
-├── sub-03_ses-04_task-TBencoding_run-01_recording-trigger_physio.json
-├── sub-03_ses-04_task-TBencoding_run-01_recording-pulse_physio.tsv.gz
-├── sub-03_ses-04_task-TBencoding_run-01_recording-pulse_physio.json
-├── sub-03_ses-04_task-TBencoding_run-01_recording-respiratory_physio.tsv.gz
-└── sub-03_ses-04_task-TBencoding_run-01_recording-respiratory_physio.json
+sub-##/ses-##/func/
+├── sub-##_ses-##_task-TBencoding_run-##_recording-trigger_physio.tsv.gz
+├── sub-##_ses-##_task-TBencoding_run-##_recording-trigger_physio.json
+├── sub-##_ses-##_task-TBencoding_run-##_recording-pulse_physio.tsv.gz
+├── sub-##_ses-##_task-TBencoding_run-##_recording-pulse_physio.json
+├── sub-##_ses-##_task-TBencoding_run-##_recording-respiratory_physio.tsv.gz
+└── sub-##_ses-##_task-TBencoding_run-##_recording-respiratory_physio.json
 ```
 
 | Recording | Column | Sampling (Hz) | Source |
@@ -69,14 +71,17 @@ header). The pulse-oximeter file uses the BIDS `cardiac` column name because
 pulse oximetry measures cardiac rhythm; it is the only cardiac signal in the
 dataset. The PMU's ECG1 input carries the scanner's volume trigger (a two-level
 signal switching at the TR), so it is named `recording-trigger` (renamed from
-`recording-cardiac` in dataset version 1.5.0). Only sub-03/04/05 have it.
+`recording-cardiac` in dataset version 1.5.0). Only the first three
+participants have it.
 `StartTime` in every sidecar comes from the PMU log's own volume timestamps,
 not from the trigger channel. Check `SamplingFrequency` in each
 `_physio.json` sidecar rather than relying on this table.
 
-Scanner physio is most consistently available in trial-based sessions (ses-04
-through ses-18). Availability varies by session and subject depending on
-equipment setup and signal quality.
+Pulse and respiratory recordings occur in every session type (baseline,
+localizer, trial-based, naturalistic, final). Availability varies by
+participant and run rather than by session type: it is partial in the first
+three participants and near complete in later ones. Read which runs have it
+from the files or the catalog.
 
 ## Eye-tracking
 
@@ -84,11 +89,11 @@ Eye position and pupil size recorded with an SR Research EyeLink system during
 naturalistic movie-watching and free recall sessions.
 
 ```
-sub-03/ses-19/func/
-├── sub-03_ses-19_task-NATencoding_run-01_recording-eye_physio.tsv.gz
-├── sub-03_ses-19_task-NATencoding_run-01_recording-eye_physio.json
-├── sub-03_ses-19_task-NATretrieval_recording-eye_physio.tsv.gz
-└── sub-03_ses-19_task-NATretrieval_recording-eye_physio.json
+sub-##/ses-##/func/
+├── sub-##_ses-##_task-NATencoding_run-##_recording-eye_physio.tsv.gz
+├── sub-##_ses-##_task-NATencoding_run-##_recording-eye_physio.json
+├── sub-##_ses-##_task-NATretrieval_recording-eye_physio.tsv.gz
+└── sub-##_ses-##_task-NATretrieval_recording-eye_physio.json
 ```
 
 | Recording | Columns | Sampling (Hz) | Source |
@@ -103,17 +108,18 @@ Eye-tracking data is trimmed to the scan window defined by scanner triggers
 (input=255). The `StartTime` in the JSON sidecar corresponds to the first
 BOLD volume onset.
 
-Eye-tracking is primarily available in naturalistic sessions (ses-19 through
-ses-28). Raw EDF source files are preserved in
-`sourcedata/sub-XX/ses-YY/eyetracking/`.
+Eye-tracking is in the naturalistic sessions (ses-19 through ses-28). Raw
+EDF source files are kept in `mmmsourcedata/sub-##/ses-##/eyetracking/`
+(outside the BIDS tree; see [Source Data](sourcedata.md)).
 
 ## Audio recordings
 
-Verbal free recall recordings (WAV format) are stored in sourcedata and are
-not part of the BIDS raw dataset:
+Verbal free recall recordings are stored in `mmmsourcedata/` and are not
+part of the BIDS raw dataset. In-scanner recall is recorded as WAV, with an
+M4A backup recording in most sessions; the final free recall (ses-29) is M4A:
 
 ```
-sourcedata/sub-##/ses-##/audio/
+mmmsourcedata/sub-##/ses-##/audio/
 ├── recording_mic_YYYY-MM-DD_HHhMM.SS.mmm.wav
 ├── recording_mic_YYYY-MM-DD_HHhMM.SS.mmm.wav
 └── ...

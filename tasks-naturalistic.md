@@ -22,7 +22,7 @@ These are the labels in the files. The `NAT*` prefixes were applied during
 BIDSification.
 
 ## Movie Viewing
-- Watched 8 films of 2-6 minutes each
+- Watched 8 films of 2-6 minutes each per session (6 in the last naturalistic session, which has no films carried over to a next session)
 - Types of movies: various length and style (live-action, animated, stop motion, with or without speech)
 - Conditions: 6 of the movies are new and 2 are repeated every session
 - Participants are first shown the movie title for 2.5 seconds and then shown the movie.
@@ -31,4 +31,4 @@ BIDSification.
 - Participants are prompted with a movie title for 7.5 seconds. During this time, the participant indicates if they are able to recall the movie associated with the title.
 - If they are unable to recall the movie, they are then shown an image cue for 3 seconds.
 - A fixation cross is then shown, and the participant speaks freely into a microphone for an unlimited amount of time to recall as many details as possible from the movie.
-- Conditions: 4 are from that current session previously shown in the encoding task, 2 are repeated every session, and 2 are from the previous session.
+- Conditions: 4 are from that current session previously shown in the encoding task, 2 are repeated every session, and 2 are from the previous session (so the first naturalistic session has 6 recall trials).
